@@ -175,3 +175,31 @@ class Config:
         """
         ),
     )
+
+
+class RedisConfig:
+    CONNECTION_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
+
+
+class LocalDBConfig:
+    pass
+
+
+class Roles:
+    viewer = 'viewer'
+    editor = 'editor'
+    owner = 'owner'
+
+    public = 'public'
+    private = 'private'
+
+    guest = 'guest'
+
+    mapping = {
+        guest: -1,
+        public: 0,
+        private: 1,
+        viewer: 1,
+        editor: 5,
+        owner: 100
+    }

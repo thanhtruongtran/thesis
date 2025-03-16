@@ -1,0 +1,151 @@
+/* Cấu hình màu nền và chữ */
+body {
+    background-color: #E6E9EF; /* Màu nền nhẹ nhàng */
+    color: #2c3e50; /* Màu chữ chính */
+}
+.stApp {
+    background-color: #E6E9EF;
+}
+
+/* Tiêu đề chính */
+.main-header {
+    font-size: 2.5rem;
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #000000; /* Màu đen */
+    font-weight: bold;
+}
+
+/* Tiêu đề con */
+.stMarkdown h1, .stMarkdown h2, .stMarkdown h3, .stMarkdown h4, .stMarkdown h5, .stMarkdown h6 {
+    color: #000000 !important; /* Chuyển tất cả tiêu đề sang màu đen */
+}
+
+/* Post trong Feed */
+.post {
+    background-color: #ffffff;
+    padding: 1rem;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid #3498db;
+    color: #000000; /* Chữ màu đen */
+}
+.post-author {
+    font-weight: bold;
+    color: #1a73e8; /* Màu xanh nổi bật */
+}
+.post-time {
+    color: #4a4a4a; /* Màu xám đậm */
+    font-size: 0.8rem;
+}
+.post-actions {
+    display: flex;
+    gap: 1rem;
+    color: #4a4a4a; /* Màu xám đậm */
+}
+
+/* Tin nhắn trong chat */
+.message-container {
+    max-height: 400px;
+    overflow-y: auto;
+}
+.message {
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    border-radius: 5px;
+    color: #000000; /* Màu chữ đen */
+}
+.message-sent {
+    background-color: #d6eaf8;
+    margin-left: 20%;
+    border-left: 3px solid #3498db;
+    color: #1a1a1a;
+}
+.message-received {
+    background-color: #ffffff;
+    margin-right: 20%;
+    border-left: 3px solid #2ecc71;
+    color: #1a1a1a;
+}
+
+/* Nút kết nối Metamask */
+.connect-button button {
+    background-color: #FF9E0D;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/* Footer */
+.footer {
+    text-align: center;
+    padding: 20px;
+    margin-top: 40px;
+    color: #4a4a4a;
+    font-weight: bold;
+}
+
+/* Căn chỉnh input chat để cùng hàng với nút gửi */
+.chat-container {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Khoảng cách giữa ô nhập và nút gửi */
+}
+
+/* Chỉnh lại ô nhập tin nhắn */
+.stTextInput input {
+    background-color: #FFFFFF !important; /* Chuyển nền sang trắng */
+    color: #000000 !important; /* Chữ màu đen */
+    font-size: 16px !important;
+    font-weight: bold !important;
+    padding: 12px !important;
+    height: 55px !important; /* Chiều cao bằng với nút gửi */
+    border: 1px solid #ccc !important; /* Viền nhẹ */
+}
+
+/* Placeholder mờ */
+.stTextInput input::placeholder {
+    color: #888888 !important;
+    opacity: 0.7 !important;
+}
+
+/* Định dạng nút gửi */
+.send-btn button {
+    background-color: #3498db;
+    color: white;
+    font-weight: bold;
+    border-radius: 5px;
+    padding: 12px 20px;
+    border: none;
+    cursor: pointer;
+    height: 45px !important; /* Đảm bảo chiều cao khớp với input */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Khung dành cho Feed */
+.feed-container {
+    background-color: #FFFFFF;      
+    border-radius: 10px;            
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    max-height: 400px;             
+    overflow-y: auto;              
+    padding: 20px;            
+    margin: 20px 0;      
+}
+
+/* Khung dành cho Chat */
+.chat-container-fixed {
+    background-color: #FFFFFF;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 20px;
+    margin: 20px 0;
+}
