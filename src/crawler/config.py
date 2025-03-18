@@ -1,0 +1,43 @@
+# config.py
+
+BASE_URLS = [
+    "https://cryptodnes.bg/en/feed",
+    "https://ambcrypto.com/feed/",
+    "https://coingape.com/feed/",
+    "https://www.cryptotimes.io/feed/",
+    "https://blockworks.co/feed",
+    "https://cryptoslate.com/feed/",
+    "https://decrypt.co/feed",
+    "https://zycrypto.com/feed/",
+    "https://dailyhodl.com/feed/",
+    "https://bitcoinist.com/feed/",
+    "https://crypto.news/feed/",
+    "https://cryptopotato.com/rss/",
+    "https://u.today/rss",
+    "https://www.newsbtc.com/feed/",
+    "https://insidebitcoins.com/feed",
+    "https://cryptomufasa.com/feed/",
+    "https://cryptobriefing.com/feed/",
+    "https://www.coindesk.com/arc/outboundfeeds/rss",
+    "https://www.thecoinrepublic.com/feed/",
+    "https://en.bitcoinsistemi.com/feed/",
+    "https://crypto-economy.com/feed/",
+    "https://www.cointribune.com/en/feed/",
+    "https://cryptonews.com/rss/",
+    "https://dailycoin.com/feed/",
+    "https://beincrypto.com/feed/",
+    "https://coinpaprika.com/news/feed/",
+    "https://bitcoinmagazine.com/.rss/full/",
+    "https://cryptodaily.co.uk/feed",
+    "https://beincrypto/feed/",
+    "https://www.thecoinrepublic.com/feed/",
+]
+CSS_SELECTOR = None
+REQUIRED_KEYS = [
+    "title",
+    "link",
+    "publishedTime",
+    "category",
+    "description",
+    "content",
+]
