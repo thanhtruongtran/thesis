@@ -446,3 +446,29 @@ class ReFormatPromptTemplate(BasePromptTemplate):
             template=self.prompt,
             input_variables=["original_tweet"],
         )
+
+
+class EntityExtractionPromptTemplate(BasePromptTemplate):
+    prompt: str = """
+        You are an expert in Web3 Community and NLP. Your task is to extract entities from the given text.
+
+        Entities to extract: ["TOKEN", "PROJECT", "WALLET", "EVENT", "TREND"]
+
+        Your response MUST be in dictionary format with the key is the entity and the value is a list of entities.
+        Do not include symbol, puctuation, ```, or any special characters in the extracted entities.
+
+        For example:
+            "TOKEN": ["$BTC", "$ETH"],
+            "PROJECT": ["Bitcoin", "Ethereum"],
+            "WALLET": ["MetaMask", "Trust Wallet"],
+            "EVENT": ["Hackathon", "Conference"],
+            "TREND": ["DeFi", "NFT"]
+
+        Text: {text}
+        """
+    
+    def create_template(self) -> PromptTemplate:
+        return PromptTemplate(
+            template=self.prompt,
+            input_variables=["text"],
+        )
