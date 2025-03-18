@@ -11,7 +11,7 @@ sys.path.append(os.getcwd())
 from dotenv import load_dotenv
 
 from src.constants.llm.agent_prompt import EntityExtractionPromptTemplate
-from src.databases.mongodb_cdp import MongoDBCDP
+from src.databases.mongodb_community import MongoDBCommunity
 from src.services.llm.communication import LLMCommunication
 from src.utils.logger import get_logger
 
@@ -29,7 +29,7 @@ class ChatResponse:
         self.use_for_twitter = use_for_twitter
         self.api_chat = os.getenv("API_CHATBOT")
         self.authorize_chat = os.getenv("AUTHORIZE_CHATBOT")
-        self.mongodb = MongoDBCDP()
+        self.mongodb = MongoDBCommunity()
         self.llm = LLMCommunication()
 
     def get_response(
