@@ -21,19 +21,21 @@ logger = get_logger("Chat Response")
 
 class ChatResponse:
     def __init__(
-        self, user_id=None, is_from="web", session_id="", use_for_twitter=False
+        self, user_id='16531087-1950-47d1-8f53-d44ec5dcd6b3', session_id="", from_platform='other', use_for_twitter=False
     ):
         self.user_id = user_id
-        self.is_from = is_from
         self.session_id = session_id
+        self.from_platform = from_platform
         self.use_for_twitter = use_for_twitter
         self.api_chat = os.getenv("API_CHATBOT")
         self.authorize_chat = os.getenv("AUTHORIZE_CHATBOT")
+        self.FROM_CHATBOT = os.getenv("FROM_CHATBOT")
+        self.CLIENT_ID = os.getenv("CLIENT_ID")
         self.mongodb = MongoDBCommunity()
         self.llm = LLMCommunication()
 
     def get_response(
-        self, text, num_keywords=10, num_context=0, max_character=270, context=""
+        self, text, num_keywords=10, num_context=0, context=""
     ):
         # save query in database
         self.save_query(text)
@@ -46,15 +48,14 @@ class ChatResponse:
                 "text": text,
                 "num_keywords": num_keywords,
                 "num_context": num_context,
-                "max_character": max_character,
                 "context": context,
             }
             response = requests.post(
-                f"{self.api_chat}/chat?user_id={self.user_id}&is_from={self.is_from}&use_for_twitter={self.use_for_twitter}",
+                f"{self.api_chat}/chat?user_id={self.user_id}&from_chatbot={self.FROM_CHATBOT}&client_id={self.CLIENT_ID}&from_platform={self.from_platform}&use_for_twitter={self.use_for_twitter}",
                 headers=headers,
                 json=request_body,
             )
-            response = response.json()
+            response = response.json().get("answer")
             return response
         except Exception as e:
             logger.error(f"Error in get_response: {str(e)}")
@@ -123,7 +124,7 @@ class ChatResponse:
 
 
 if __name__ == "__main__":
-    chat_response = ChatResponse(user_id="0x26610e89a8b825f23e89e58879ce97d791ad4438")
+    chat_response = ChatResponse()
     response = chat_response.get_response(
         text="What is DEX",
     )
