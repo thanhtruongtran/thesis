@@ -22,7 +22,10 @@ class GetFeed:
         timestamp = int(time.time()) - 86400 * 2
         feed = self.mongodb._db["agent_contents"].find(
             {
-                "type": "analysis",
+                "$or": [
+                    {"type": "news"},
+                    {"type": "analysis"},
+                ],
                 "lastUpdated": {"$gte": timestamp},
             }
         )
@@ -31,6 +34,7 @@ class GetFeed:
                 "keyWord": i["keyWord"],
                 "lastUpdated": i["lastUpdated"],
                 "content": i["content"],
+                "type": i["type"],
             }
             for i in feed
         ]
