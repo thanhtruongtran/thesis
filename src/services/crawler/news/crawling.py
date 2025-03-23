@@ -9,7 +9,7 @@ import xml.etree.ElementTree as ET
 from cli_scheduler.scheduler_job import SchedulerJob
 
 from src.databases.mongodb_community import MongoDBCommunity
-from src.crawler.news.config import BASE_URLS, BASE_URLS_V2
+from src.services.crawler.news.config import BASE_URLS, BASE_URLS_V2
 from src.constants.time import TimeConstants
 from src.utils.logger import get_logger
 from src.utils.time import round_timestamp
