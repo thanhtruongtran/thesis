@@ -72,3 +72,4 @@ keybert==0.8.5
 nltk==3.2.4
 
 streamlit==1.43.2
+DeFiLlama-Curl==2.0.1
