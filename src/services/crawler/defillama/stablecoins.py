@@ -1,5 +1,5 @@
 from typing import List, Dict
-from src.crawler.defillama._utils import get
+from src.services.crawler.defillama._utils import get
 
 BASE_URL = "https://stablecoins.llama.fi"
 

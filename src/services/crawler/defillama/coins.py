@@ -2,7 +2,7 @@ import os
 import sys
 sys.path.append(os.getcwd())
 from typing import List, Dict, Optional
-from src.crawler.defillama._utils import get, arg_parser
+from src.services.crawler.defillama._utils import get, arg_parser
 
 BASE_URL = "https://coins.llama.fi"
 

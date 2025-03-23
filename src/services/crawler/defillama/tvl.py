@@ -2,7 +2,7 @@ import os
 import sys
 sys.path.append(os.getcwd())
 from typing import List, Dict, Union
-from src.crawler.defillama._utils import get
+from src.services.crawler.defillama._utils import get
 
 BASE_URL = "https://api.llama.fi"
 

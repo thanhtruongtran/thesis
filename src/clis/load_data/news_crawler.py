@@ -36,7 +36,7 @@ from src.constants.time import TimeConstants
     help="Time interval to get news",
 )
 def news_crawling(interval, delay, run_now, time_interval):
-    from src.crawler.news.crawling import NewsCrawling
+    from src.services.crawler.news.crawling import NewsCrawling
 
     job = NewsCrawling(interval=interval, delay=delay, run_now=run_now, time_interval=time_interval)
     job.run()
