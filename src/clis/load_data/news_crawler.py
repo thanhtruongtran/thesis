@@ -14,7 +14,7 @@ from src.constants.time import TimeConstants
 @click.option(
     "-de",
     "--delay",
-    default=TimeConstants.A_DAY,
+    default=0,
     show_default=True,
     type=int,
     help="Time (in seconds) to delay",
