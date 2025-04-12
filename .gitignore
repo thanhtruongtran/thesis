@@ -172,3 +172,10 @@ cython_debug/
 
 # custom
 data/
+secrets/
+data
+quick_run/data
+.idea
+.data
+last_synced_block.txt
+test/data/

@@ -32,6 +32,18 @@ class MongoDBETLConfig:
     DATABASE = os.getenv("MONGODB_ETL_DATABASE")
 
 
+class BlockchainETLConfig:
+    HOST = os.getenv("BLOCKCHAIN_ETL_HOST")
+    PORT = os.getenv("BLOCKCHAIN_ETL_PORT")
+    USERNAME = os.getenv("BLOCKCHAIN_ETL_USERNAME")
+    PASSWORD = os.getenv("BLOCKCHAIN_ETL_PASSWORD")
+
+    CONNECTION_URL = os.getenv("BLOCKCHAIN_ETL_CONNECTION_URL") or f"mongodb://{USERNAME}:{PASSWORD}@{HOST}:{PORT}"
+    DATABASE = 'blockchain_etl'
+    DB_PREFIX = os.getenv("DB_PREFIX")
+    DEX_EVENT = 'dex_events'
+
+
 class MongoDBKLGConfig:
     CONNECTION_URL = os.getenv("MONGODB_KLG_CONNECTION_URL")
     DATABASE = os.getenv("MONGODB_KLG_DATABASE", "knowledge_graph")
@@ -67,9 +79,19 @@ class MongoDBCacheConfig:
     DATABASE = os.getenv("MONGODB_CACHE_DATABASE")
 
 
+class MongoDBSCLabelConfig:
+    CONNECTION_URL = os.getenv("MONGODB_SC_LABEL_CONNECTION_URL")
+    DATABASE = os.getenv('MONGODB_SC_LABEL_DATABASE', 'SmartContractLabel')
+
+
 class MongoDBTraderConfig:
     CONNECTION_URL = os.getenv("MONGODB_TRADER_CONNECTION_URL")
     DATABASE = os.getenv("MONGODB_TRADER_DATABASE")
+
+
+class MongoDBDexConfig:
+    CONNECTION_URL = os.getenv("MONGODB_DEX_CONNECTION_URL")
+    DATABASE = os.getenv('MONGODB_DEX_DATABASE', 'dex')
 
 
 class NetworkConfig:
@@ -184,6 +206,10 @@ class RedisConfig:
 class LocalDBConfig:
     pass
 
+
+class MonitoringConfig:
+    MONITOR_ROOT_PATH = os.getenv("MONITOR_ROOT_PATH", "/home/monitor/.log/")
+    
 
 class Roles:
     viewer = 'viewer'

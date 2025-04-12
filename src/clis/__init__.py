@@ -8,6 +8,7 @@ from src.clis.load_data.project_change_ranking import project_change_ranking
 from src.clis.load_data.project_mention_ranking import project_mention_ranking
 from src.clis.load_data.token_change_ranking import token_change_ranking
 from src.clis.load_data.token_mention_ranking import token_mention_ranking
+from src.clis.stream.publish_signal_stream import publish_signal_stream
 
 
 @click.group()
@@ -26,3 +27,4 @@ cli.add_command(token_mention_ranking, "token_mention_ranking")
 cli.add_command(project_mention_ranking, "project_mention_ranking")
 cli.add_command(agents_token_transfering, "agents_token_transfering")
 cli.add_command(news_crawling, "news_crawling")
+cli.add_command(publish_signal_stream, "publish_signal_stream")

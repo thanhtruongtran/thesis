@@ -1,0 +1,2406 @@
+[
+    {
+        "name": "CommitOwnership",
+        "inputs": [
+            {
+                "name": "admin",
+                "type": "address",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "ApplyOwnership",
+        "inputs": [
+            {
+                "name": "admin",
+                "type": "address",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "AssetBridged",
+        "inputs": [
+            {
+                "name": "token",
+                "type": "address",
+                "indexed": false
+            },
+            {
+                "name": "amount",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "DeployedGauge",
+        "inputs": [
+            {
+                "name": "_implementation",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "_lp_token",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "_deployer",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "_salt",
+                "type": "bytes32",
+                "indexed": false
+            },
+            {
+                "name": "_gauge",
+                "type": "address",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "Minted",
+        "inputs": [
+            {
+                "name": "_user",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "_gauge",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "_new_total",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "UpdateImplementation",
+        "inputs": [
+            {
+                "name": "_old_implementation",
+                "type": "address",
+                "indexed": false
+            },
+            {
+                "name": "_new_implementation",
+                "type": "address",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "UpdateVotingEscrow",
+        "inputs": [
+            {
+                "name": "_old_voting_escrow",
+                "type": "address",
+                "indexed": false
+            },
+            {
+                "name": "_new_voting_escrow",
+                "type": "address",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "UpdateCallProxy",
+        "inputs": [
+            {
+                "name": "_old_call_proxy",
+                "type": "address",
+                "indexed": false
+            },
+            {
+                "name": "_new_call_proxy",
+                "type": "address",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "UpdateMirrored",
+        "inputs": [
+            {
+                "name": "_gauge",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "_mirrored",
+                "type": "bool",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "TransferOwnership",
+        "inputs": [
+            {
+                "name": "_old_owner",
+                "type": "address",
+                "indexed": false
+            },
+            {
+                "name": "_new_owner",
+                "type": "address",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "Approval",
+        "inputs": [
+            {
+                "name": "_owner",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "_spender",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "_value",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "Transfer",
+        "inputs": [
+            {
+                "name": "_from",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "_to",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "_value",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "Boost",
+        "inputs": [
+            {
+                "name": "_from",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "_to",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "_bias",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "_slope",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "_start",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "SetMessenger",
+        "inputs": [
+            {
+                "name": "messenger",
+                "type": "address",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "CommitOwnership",
+        "inputs": [
+            {
+                "name": "future_owner",
+                "type": "address",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "ApplyOwnership",
+        "inputs": [
+            {
+                "name": "owner",
+                "type": "address",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "BasePoolAdded",
+        "inputs": [
+            {
+                "name": "base_pool",
+                "type": "address",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "PlainPoolDeployed",
+        "inputs": [
+            {
+                "name": "coins",
+                "type": "address[]",
+                "indexed": false
+            },
+            {
+                "name": "A",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "fee",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "deployer",
+                "type": "address",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "MetaPoolDeployed",
+        "inputs": [
+            {
+                "name": "coin",
+                "type": "address",
+                "indexed": false
+            },
+            {
+                "name": "base_pool",
+                "type": "address",
+                "indexed": false
+            },
+            {
+                "name": "A",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "fee",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "deployer",
+                "type": "address",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "LiquidityGaugeDeployed",
+        "inputs": [
+            {
+                "name": "pool",
+                "type": "address",
+                "indexed": false
+            },
+            {
+                "name": "gauge",
+                "type": "address",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "Transfer",
+        "inputs": [
+            {
+                "name": "sender",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "receiver",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "value",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "Approval",
+        "inputs": [
+            {
+                "name": "owner",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "spender",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "value",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "TokenExchange",
+        "inputs": [
+            {
+                "name": "buyer",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "sold_id",
+                "type": "int128",
+                "indexed": false
+            },
+            {
+                "name": "tokens_sold",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "bought_id",
+                "type": "int128",
+                "indexed": false
+            },
+            {
+                "name": "tokens_bought",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "TokenExchangeUnderlying",
+        "inputs": [
+            {
+                "name": "buyer",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "sold_id",
+                "type": "int128",
+                "indexed": false
+            },
+            {
+                "name": "tokens_sold",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "bought_id",
+                "type": "int128",
+                "indexed": false
+            },
+            {
+                "name": "tokens_bought",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "AddLiquidity",
+        "inputs": [
+            {
+                "name": "provider",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "token_amounts",
+                "type": "uint256[]",
+                "indexed": false
+            },
+            {
+                "name": "fees",
+                "type": "uint256[]",
+                "indexed": false
+            },
+            {
+                "name": "invariant",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "token_supply",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "RemoveLiquidity",
+        "inputs": [
+            {
+                "name": "provider",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "token_amounts",
+                "type": "uint256[]",
+                "indexed": false
+            },
+            {
+                "name": "fees",
+                "type": "uint256[]",
+                "indexed": false
+            },
+            {
+                "name": "token_supply",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "RemoveLiquidityOne",
+        "inputs": [
+            {
+                "name": "provider",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "token_id",
+                "type": "int128",
+                "indexed": false
+            },
+            {
+                "name": "token_amount",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "coin_amount",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "token_supply",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "RemoveLiquidityImbalance",
+        "inputs": [
+            {
+                "name": "provider",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "token_amounts",
+                "type": "uint256[]",
+                "indexed": false
+            },
+            {
+                "name": "fees",
+                "type": "uint256[]",
+                "indexed": false
+            },
+            {
+                "name": "invariant",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "token_supply",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "RampA",
+        "inputs": [
+            {
+                "name": "old_A",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "new_A",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "initial_time",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "future_time",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "StopRampA",
+        "inputs": [
+            {
+                "name": "A",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "t",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "ApplyNewFee",
+        "inputs": [
+            {
+                "name": "fee",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "offpeg_fee_multiplier",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "SetNewMATime",
+        "inputs": [
+            {
+                "name": "ma_exp_time",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "D_ma_time",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "Transfer",
+        "inputs": [
+            {
+                "name": "sender",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "receiver",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "value",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "Approval",
+        "inputs": [
+            {
+                "name": "owner",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "spender",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "value",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "TokenExchange",
+        "inputs": [
+            {
+                "name": "buyer",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "sold_id",
+                "type": "int128",
+                "indexed": false
+            },
+            {
+                "name": "tokens_sold",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "bought_id",
+                "type": "int128",
+                "indexed": false
+            },
+            {
+                "name": "tokens_bought",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "TokenExchangeUnderlying",
+        "inputs": [
+            {
+                "name": "buyer",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "sold_id",
+                "type": "int128",
+                "indexed": false
+            },
+            {
+                "name": "tokens_sold",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "bought_id",
+                "type": "int128",
+                "indexed": false
+            },
+            {
+                "name": "tokens_bought",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "AddLiquidity",
+        "inputs": [
+            {
+                "name": "provider",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "token_amounts",
+                "type": "uint256[]",
+                "indexed": false
+            },
+            {
+                "name": "fees",
+                "type": "uint256[]",
+                "indexed": false
+            },
+            {
+                "name": "invariant",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "token_supply",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "RemoveLiquidity",
+        "inputs": [
+            {
+                "name": "provider",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "token_amounts",
+                "type": "uint256[]",
+                "indexed": false
+            },
+            {
+                "name": "fees",
+                "type": "uint256[]",
+                "indexed": false
+            },
+            {
+                "name": "token_supply",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "RemoveLiquidityOne",
+        "inputs": [
+            {
+                "name": "provider",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "token_id",
+                "type": "int128",
+                "indexed": false
+            },
+            {
+                "name": "token_amount",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "coin_amount",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "token_supply",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "RemoveLiquidityImbalance",
+        "inputs": [
+            {
+                "name": "provider",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "token_amounts",
+                "type": "uint256[]",
+                "indexed": false
+            },
+            {
+                "name": "fees",
+                "type": "uint256[]",
+                "indexed": false
+            },
+            {
+                "name": "invariant",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "token_supply",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "RampA",
+        "inputs": [
+            {
+                "name": "old_A",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "new_A",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "initial_time",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "future_time",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "StopRampA",
+        "inputs": [
+            {
+                "name": "A",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "t",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "ApplyNewFee",
+        "inputs": [
+            {
+                "name": "fee",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "offpeg_fee_multiplier",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "SetNewMATime",
+        "inputs": [
+            {
+                "name": "ma_exp_time",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "D_ma_time",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "TwocryptoPoolDeployed",
+        "inputs": [
+            {
+                "name": "pool",
+                "type": "address",
+                "indexed": false
+            },
+            {
+                "name": "name",
+                "type": "string",
+                "indexed": false
+            },
+            {
+                "name": "symbol",
+                "type": "string",
+                "indexed": false
+            },
+            {
+                "name": "coins",
+                "type": "address[2]",
+                "indexed": false
+            },
+            {
+                "name": "math",
+                "type": "address",
+                "indexed": false
+            },
+            {
+                "name": "salt",
+                "type": "bytes32",
+                "indexed": false
+            },
+            {
+                "name": "precisions",
+                "type": "uint256[2]",
+                "indexed": false
+            },
+            {
+                "name": "packed_A_gamma",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "packed_fee_params",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "packed_rebalancing_params",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "packed_prices",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "deployer",
+                "type": "address",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "LiquidityGaugeDeployed",
+        "inputs": [
+            {
+                "name": "pool",
+                "type": "address",
+                "indexed": false
+            },
+            {
+                "name": "gauge",
+                "type": "address",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "UpdateFeeReceiver",
+        "inputs": [
+            {
+                "name": "_old_fee_receiver",
+                "type": "address",
+                "indexed": false
+            },
+            {
+                "name": "_new_fee_receiver",
+                "type": "address",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "UpdatePoolImplementation",
+        "inputs": [
+            {
+                "name": "_implemention_id",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "_old_pool_implementation",
+                "type": "address",
+                "indexed": false
+            },
+            {
+                "name": "_new_pool_implementation",
+                "type": "address",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "UpdateGaugeImplementation",
+        "inputs": [
+            {
+                "name": "_old_gauge_implementation",
+                "type": "address",
+                "indexed": false
+            },
+            {
+                "name": "_new_gauge_implementation",
+                "type": "address",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "UpdateMathImplementation",
+        "inputs": [
+            {
+                "name": "_old_math_implementation",
+                "type": "address",
+                "indexed": false
+            },
+            {
+                "name": "_new_math_implementation",
+                "type": "address",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "UpdateViewsImplementation",
+        "inputs": [
+            {
+                "name": "_old_views_implementation",
+                "type": "address",
+                "indexed": false
+            },
+            {
+                "name": "_new_views_implementation",
+                "type": "address",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "TransferOwnership",
+        "inputs": [
+            {
+                "name": "_old_owner",
+                "type": "address",
+                "indexed": false
+            },
+            {
+                "name": "_new_owner",
+                "type": "address",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "TricryptoPoolDeployed",
+        "inputs": [
+            {
+                "name": "pool",
+                "type": "address",
+                "indexed": false
+            },
+            {
+                "name": "name",
+                "type": "string",
+                "indexed": false
+            },
+            {
+                "name": "symbol",
+                "type": "string",
+                "indexed": false
+            },
+            {
+                "name": "weth",
+                "type": "address",
+                "indexed": false
+            },
+            {
+                "name": "coins",
+                "type": "address[3]",
+                "indexed": false
+            },
+            {
+                "name": "math",
+                "type": "address",
+                "indexed": false
+            },
+            {
+                "name": "salt",
+                "type": "bytes32",
+                "indexed": false
+            },
+            {
+                "name": "packed_precisions",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "packed_A_gamma",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "packed_fee_params",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "packed_rebalancing_params",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "packed_prices",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "deployer",
+                "type": "address",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "UpdateFeeReceiver",
+        "inputs": [
+            {
+                "name": "_old_fee_receiver",
+                "type": "address",
+                "indexed": false
+            },
+            {
+                "name": "_new_fee_receiver",
+                "type": "address",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "UpdatePoolImplementation",
+        "inputs": [
+            {
+                "name": "_implemention_id",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "_old_pool_implementation",
+                "type": "address",
+                "indexed": false
+            },
+            {
+                "name": "_new_pool_implementation",
+                "type": "address",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "UpdateMathImplementation",
+        "inputs": [
+            {
+                "name": "_old_math_implementation",
+                "type": "address",
+                "indexed": false
+            },
+            {
+                "name": "_new_math_implementation",
+                "type": "address",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "UpdateViewsImplementation",
+        "inputs": [
+            {
+                "name": "_old_views_implementation",
+                "type": "address",
+                "indexed": false
+            },
+            {
+                "name": "_new_views_implementation",
+                "type": "address",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "TransferOwnership",
+        "inputs": [
+            {
+                "name": "_old_owner",
+                "type": "address",
+                "indexed": false
+            },
+            {
+                "name": "_new_owner",
+                "type": "address",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "Transfer",
+        "inputs": [
+            {
+                "name": "sender",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "receiver",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "value",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "Approval",
+        "inputs": [
+            {
+                "name": "owner",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "spender",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "value",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "TokenExchange",
+        "inputs": [
+            {
+                "name": "buyer",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "sold_id",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "tokens_sold",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "bought_id",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "tokens_bought",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "fee",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "packed_price_scale",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "AddLiquidity",
+        "inputs": [
+            {
+                "name": "provider",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "token_amounts",
+                "type": "uint256[3]",
+                "indexed": false
+            },
+            {
+                "name": "fee",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "token_supply",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "packed_price_scale",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "RemoveLiquidity",
+        "inputs": [
+            {
+                "name": "provider",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "token_amounts",
+                "type": "uint256[3]",
+                "indexed": false
+            },
+            {
+                "name": "token_supply",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "RemoveLiquidityOne",
+        "inputs": [
+            {
+                "name": "provider",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "token_amount",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "coin_index",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "coin_amount",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "approx_fee",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "packed_price_scale",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "NewParameters",
+        "inputs": [
+            {
+                "name": "mid_fee",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "out_fee",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "fee_gamma",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "allowed_extra_profit",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "adjustment_step",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "ma_time",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "xcp_ma_time",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "RampAgamma",
+        "inputs": [
+            {
+                "name": "initial_A",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "future_A",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "initial_gamma",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "future_gamma",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "initial_time",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "future_time",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "StopRampA",
+        "inputs": [
+            {
+                "name": "current_A",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "current_gamma",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "time",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "ClaimAdminFee",
+        "inputs": [
+            {
+                "name": "admin",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "tokens",
+                "type": "uint256[3]",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "Exchange",
+        "inputs": [
+            {
+                "name": "sender",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "receiver",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "route",
+                "type": "address[11]",
+                "indexed": false
+            },
+            {
+                "name": "swap_params",
+                "type": "uint256[5][5]",
+                "indexed": false
+            },
+            {
+                "name": "pools",
+                "type": "address[5]",
+                "indexed": false
+            },
+            {
+                "name": "in_amount",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "out_amount",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "NewEntry",
+        "inputs": [
+            {
+                "name": "id",
+                "type": "uint256",
+                "indexed": true
+            },
+            {
+                "name": "addr",
+                "type": "address",
+                "indexed": false
+            },
+            {
+                "name": "description",
+                "type": "string",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "EntryModified",
+        "inputs": [
+            {
+                "name": "id",
+                "type": "uint256",
+                "indexed": true
+            },
+            {
+                "name": "version",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "EntryRemoved",
+        "inputs": [
+            {
+                "name": "id",
+                "type": "uint256",
+                "indexed": true
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "CommitNewAdmin",
+        "inputs": [
+            {
+                "name": "admin",
+                "type": "address",
+                "indexed": true
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "NewAdmin",
+        "inputs": [
+            {
+                "name": "admin",
+                "type": "address",
+                "indexed": true
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "Transfer",
+        "inputs": [
+            {
+                "name": "sender",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "receiver",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "value",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "Approval",
+        "inputs": [
+            {
+                "name": "owner",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "spender",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "value",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "TokenExchange",
+        "inputs": [
+            {
+                "name": "buyer",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "sold_id",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "tokens_sold",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "bought_id",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "tokens_bought",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "fee",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "packed_price_scale",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "AddLiquidity",
+        "inputs": [
+            {
+                "name": "provider",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "token_amounts",
+                "type": "uint256[3]",
+                "indexed": false
+            },
+            {
+                "name": "fee",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "token_supply",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "packed_price_scale",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "RemoveLiquidity",
+        "inputs": [
+            {
+                "name": "provider",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "token_amounts",
+                "type": "uint256[3]",
+                "indexed": false
+            },
+            {
+                "name": "token_supply",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "RemoveLiquidityOne",
+        "inputs": [
+            {
+                "name": "provider",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "token_amount",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "coin_index",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "coin_amount",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "approx_fee",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "packed_price_scale",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "CommitNewParameters",
+        "inputs": [
+            {
+                "name": "deadline",
+                "type": "uint256",
+                "indexed": true
+            },
+            {
+                "name": "mid_fee",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "out_fee",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "fee_gamma",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "allowed_extra_profit",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "adjustment_step",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "ma_time",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "NewParameters",
+        "inputs": [
+            {
+                "name": "mid_fee",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "out_fee",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "fee_gamma",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "allowed_extra_profit",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "adjustment_step",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "ma_time",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "RampAgamma",
+        "inputs": [
+            {
+                "name": "initial_A",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "future_A",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "initial_gamma",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "future_gamma",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "initial_time",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "future_time",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "StopRampA",
+        "inputs": [
+            {
+                "name": "current_A",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "current_gamma",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "time",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "ClaimAdminFee",
+        "inputs": [
+            {
+                "name": "admin",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "tokens",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "Transfer",
+        "inputs": [
+            {
+                "name": "sender",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "receiver",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "value",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "Approval",
+        "inputs": [
+            {
+                "name": "owner",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "spender",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "value",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "TokenExchange",
+        "inputs": [
+            {
+                "name": "buyer",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "sold_id",
+                "type": "int128",
+                "indexed": false
+            },
+            {
+                "name": "tokens_sold",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "bought_id",
+                "type": "int128",
+                "indexed": false
+            },
+            {
+                "name": "tokens_bought",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "TokenExchangeUnderlying",
+        "inputs": [
+            {
+                "name": "buyer",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "sold_id",
+                "type": "int128",
+                "indexed": false
+            },
+            {
+                "name": "tokens_sold",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "bought_id",
+                "type": "int128",
+                "indexed": false
+            },
+            {
+                "name": "tokens_bought",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "AddLiquidity",
+        "inputs": [
+            {
+                "name": "provider",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "token_amounts",
+                "type": "uint256[]",
+                "indexed": false
+            },
+            {
+                "name": "fees",
+                "type": "uint256[]",
+                "indexed": false
+            },
+            {
+                "name": "invariant",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "token_supply",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "RemoveLiquidity",
+        "inputs": [
+            {
+                "name": "provider",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "token_amounts",
+                "type": "uint256[]",
+                "indexed": false
+            },
+            {
+                "name": "fees",
+                "type": "uint256[]",
+                "indexed": false
+            },
+            {
+                "name": "token_supply",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "RemoveLiquidityOne",
+        "inputs": [
+            {
+                "name": "provider",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "token_id",
+                "type": "int128",
+                "indexed": false
+            },
+            {
+                "name": "token_amount",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "coin_amount",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "token_supply",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "RemoveLiquidityImbalance",
+        "inputs": [
+            {
+                "name": "provider",
+                "type": "address",
+                "indexed": true
+            },
+            {
+                "name": "token_amounts",
+                "type": "uint256[]",
+                "indexed": false
+            },
+            {
+                "name": "fees",
+                "type": "uint256[]",
+                "indexed": false
+            },
+            {
+                "name": "invariant",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "token_supply",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "RampA",
+        "inputs": [
+            {
+                "name": "old_A",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "new_A",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "initial_time",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "future_time",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "StopRampA",
+        "inputs": [
+            {
+                "name": "A",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "t",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "ApplyNewFee",
+        "inputs": [
+            {
+                "name": "fee",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "offpeg_fee_multiplier",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "SetNewMATime",
+        "inputs": [
+            {
+                "name": "ma_exp_time",
+                "type": "uint256",
+                "indexed": false
+            },
+            {
+                "name": "D_ma_time",
+                "type": "uint256",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    }
+]

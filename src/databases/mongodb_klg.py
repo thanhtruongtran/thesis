@@ -20,6 +20,7 @@ class MongoDBKLG:
         self._multichain_wallets_col = self._db["multichain_wallets"]
         self._smart_contracts_col = self._db["smart_contracts"]
         self.wallets = self._db["wallets"]
+        self._projects_col = self._db["projects"]
 
     def get_price_change_logs(self, chain_id, token_addresses):
         _token_ids = [f"{chain_id}_{address}" for address in token_addresses]
@@ -99,3 +100,34 @@ class MongoDBKLG:
             symbol_doc = doc_klg['symbol']
 
         return decimals_doc, symbol_doc, market_cap
+    
+    def get_tokens_by_keys(self, keys, projection):
+        filter_statement = {
+            "idCoingecko": {"$exists": True},
+            "_id": {"$in": keys}
+        }
+        cursor = self._smart_contracts_col.find(filter_statement, projection)
+        return cursor
+    
+    def get_project_by_id(self, _id, projection=None):
+        projection = self.get_projection_statement(projection)
+
+        filter_ = {"_id": _id}
+        try:
+            cursor = self._projects_col.find_one(filter=filter_, projection=projection)
+            return cursor
+        except Exception as e:
+            logger.exception(e)
+
+        return None
+    
+    @staticmethod
+    def get_projection_statement(projection: list = None):
+        if projection is None:
+            return {}
+
+        projection_statements = {}
+        for field in projection:
+            projection_statements[field] = True
+
+        return projection_statements
