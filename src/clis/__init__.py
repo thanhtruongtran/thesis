@@ -1,7 +1,6 @@
 import click
 
 from src.clis.agents.analysis_posting import analysis_posting
-from src.clis.agents.lead_projects_impact import lead_projects_impact
 from src.clis.agents.news_posting import news_posting
 from src.clis.load_data.agents_token_transfering import agents_token_transfering
 from src.clis.load_data.news_crawler import news_crawling
@@ -21,7 +20,6 @@ def cli(ctx):
 
 cli.add_command(news_posting, "news_posting")
 cli.add_command(analysis_posting, "analysis_posting")
-cli.add_command(lead_projects_impact, "lead_projects_impact")
 cli.add_command(token_change_ranking, "token_change_ranking")
 cli.add_command(project_change_ranking, "project_change_ranking")
 cli.add_command(token_mention_ranking, "token_mention_ranking")
