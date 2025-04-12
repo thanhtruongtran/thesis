@@ -44,6 +44,7 @@ class MongoDBDexCollections:
     tickers = "tickers"
     exchanges = "exchanges"
     token_prices = "token_prices"
+    token_prices_draft = 'token_prices_draft'
 
 
 class MongoDBContractLabelCollections:
