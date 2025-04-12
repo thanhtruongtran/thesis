@@ -55,7 +55,11 @@ async def save_interest(request: Request):
 
     data = {
         "_id": user_id,
-        "interest": interests,
+        "interest": {
+            "CHAIN": interests[0],
+            "TREND": interests[1],
+            "TOKEN": interests[2],
+        },
         "isOnboarded": True
     }
 
