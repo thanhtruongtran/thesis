@@ -179,3 +179,4 @@ quick_run/data
 .data
 last_synced_block.txt
 test/data/
+test.py
