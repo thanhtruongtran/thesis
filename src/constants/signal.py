@@ -49,3 +49,14 @@ IGNORE_SWAP_TOKENS = {
         '0x14016e85a25aeb13065688cafb43044c2ef86784',  # TUSD (Bridged TrueUSD)
     ]
 }
+
+class SignalType:
+    add_liquidity = 'add_liquidity'
+    auto_invest = 'auto_invest'
+
+
+class SignalStream:
+    stream_name = 'signal_stream'
+
+    max_len = 100
+

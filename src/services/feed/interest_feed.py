@@ -141,23 +141,20 @@ class GetInterestFeed:
         return {"status": "success"}
     
     def get_interest_feed(self):
-        timestamp = int(time.time()) - 86400 * 20
-        feed = self.mongodb_community._db["news_contents"].find(
+        timestamp = int(time.time()) - 86400 * 3
+        feed = self.mongodb_community._db["news_articles"].find(
             {
-                "lastUpdated": {"$gte": timestamp},
+                "publish_date_timestamp": {"$gte": timestamp},
             }
         )
-        feed = [
+        result = [
             {
-                "keyWord": i["keyWord"],
-                "lastUpdated": i["lastUpdated"],
-                "content": i["content"],
-                "type": i["type"],
+                "keyWord": i["title"],
+                "lastUpdated": i["publish_date_timestamp"],
+                "content": i["summary"],
+                "type": "news",
             }
-            for i in feed
+            for i in list(feed)[:10]
         ]
 
-        return feed
-
-if __name__ == "__main__":
-    data = GetInterestFeed(user_id="0xbF246Cdb7CeD066817Eea5cfCEBCd7e253dDf8Ed").save_interest_feed()
+        return result

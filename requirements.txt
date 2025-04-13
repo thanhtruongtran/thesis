@@ -82,3 +82,4 @@ lxml_html_clean==0.4.1
 eth_abi~=5.1.0
 defi-state-querier==0.5.26
 query-blockchain-state-lib==1.0.1
+base58==2.1.1 

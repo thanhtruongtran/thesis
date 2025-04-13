@@ -2,16 +2,14 @@ import os
 import time
 import warnings
 
-import redis
 from sanic import Request, json
 from sanic_ext.extensions.openapi import openapi
 
 from src import create_app
 from src.apis import api
-from src.databases.mongodb_cdp import MongoDBCDP
+from src.constants.config import Config, LocalDBConfig
 from src.misc.log import log
 from src.utils.logger import get_logger
-from src.constants.config import Config, LocalDBConfig, RedisConfig
 
 warnings.filterwarnings("ignore")
 
@@ -22,12 +20,6 @@ app.ext.openapi.add_security_scheme(
     "Authorization", "apiKey", location="header", name="Authorization"
 )
 app.blueprint(api)
-
-
-@app.before_server_start
-async def setup_db(_):
-    app.ctx.mongodb = MongoDBCDP()
-    app.ctx.redis = redis.from_url(RedisConfig.CONNECTION_URL)
 
 
 @app.route("/ping", methods={"GET"})
