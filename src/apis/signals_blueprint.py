@@ -94,9 +94,8 @@ async def get_latest_signals(request: Request):
             "timestamp": {"$gte": int(time.time()) - 1800},
         },
         {"_id":0}
-    )
+    ).sort("timestamp", -1)
     signals = list(cursor)
-    signals.sort(key=lambda x: x['blockNumber'])
     
     return json({
         "data": signals,

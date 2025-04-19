@@ -1,3 +1,8 @@
+class TwitterTweetConstant:
+    LENGTH_PER_LINE = 65
+    BASIC_MAXIMUM_LENGTH = 275
+    
+    
 class TextProcessingConstant:
     MEANINGLESS_WORDS = [
         "rt",

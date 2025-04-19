@@ -44,31 +44,13 @@ class PostAnalysisJob(SchedulerJob):
                     chain_id=self.chain_id
                 )
                 logger = get_logger("Analysis Post Job")
-                if (
-                    round_timestamp(timestamp=time.time(), round_time=43200) % 86400
-                    == 0
-                ):  ## if round(UTC) = 0h
-                    logger.info("Recent period analysis started")
-                    self.get_period_analysis_post(
-                        posted_token_lst=posted_token_lst,
-                        top_mentioned_tokens=top_mentioned_tokens,
-                        chain_id=self.chain_id,
-                    )
 
-                else:  ## if round(UTC) = 12, posting recent change analysis
-                    # logger.info("Recent anomal analysis started")
-                    # self.get_recent_analysis_post(
-                    #     posted_token_lst=posted_token_lst,
-                    #     top_mentioned_tokens=top_mentioned_tokens,
-                    # )
-                    logger.info("Recent period analysis started")
-                    self.get_period_analysis_post(
-                        posted_token_lst=posted_token_lst,
-                        top_mentioned_tokens=top_mentioned_tokens,
-                        chain_id=self.chain_id,
-                    )
-
-                logger.info("Post Analysis Job finished !")
+                logger.info("period analysis posting")
+                self.get_period_analysis_post(
+                    posted_token_lst=posted_token_lst,
+                    top_mentioned_tokens=top_mentioned_tokens,
+                    chain_id=self.chain_id,
+                )
 
             else:
                 top_category_mentioned_tokens = (
@@ -80,7 +62,7 @@ class PostAnalysisJob(SchedulerJob):
                     round_timestamp(timestamp=time.time(), round_time=43200) % 86400
                     == 0
                 ):  ## if round(UTC) = 0h
-                    logger.info("Recent period analysis started")
+                    logger.info(f"posting {self.category} token posts")
                     isPosted = self.get_period_category_analysis_post(
                         posted_token_lst=posted_token_lst,
                         top_category_mentioned_tokens=top_category_mentioned_tokens,
@@ -574,7 +556,13 @@ class PostAnalysisJob(SchedulerJob):
 
         keyword_tag = f"{self.keyword}_{round_timestamp(timestamp=time.time(), round_time=self.interval)}"
         update_lst.append(
-            self._get_update_info(keyword_tag, response, replies, type="keyword")
+            self._get_update_info(
+                _id=keyword_tag,
+                symbol=self.keyword,
+                response=response,
+                replies=replies,
+                type="keyword",
+            )
         )
         used_materials.append(self._used_materials(_id=_id, tweets=keyword_tweets))
 
@@ -667,7 +655,7 @@ class PostAnalysisJob(SchedulerJob):
             {"$sort": {"meanView": -1}},
         ]
 
-        ranking_category = self.cdp._db["token_mentioned_ranking"].aggregate(
+        ranking_category = self.cdp._db["entity_mentioned_ranking"].aggregate(
             top_category_token_mentioned_pipeline
         )
         top_category_mentioned_tokens = [token["symbol"] for token in ranking_category]

@@ -56,6 +56,7 @@ class NewsCrawling(SchedulerJob):
                     "summary": article.summary,
                     "keywords": article.keywords,
                     "img_url": article.top_image,
+                    "type": "news",
                 })
             except Exception as e:
                 logger.error(f"Error while parsing {url}: {str(e)}")
@@ -132,6 +133,7 @@ class NewsCrawling(SchedulerJob):
                         "summary": article.summary,
                         "keywords": article.keywords,
                         "img_url": article.top_image,
+                        "type": "news",
                     })
 
                 except Exception as e:
