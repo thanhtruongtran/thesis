@@ -5,6 +5,7 @@ from src.databases.blockchain_etl import BlockchainETL
 from src.databases.mongodb_cdp import MongoDBCDP
 from src.databases.mongodb_dex import MongoDBDex
 from src.databases.mongodb_klg import MongoDBKLG
+from src.databases.mongodb_community import MongoDBCommunity
 from src.misc.log import log
 from src.constants.config import RedisConfig
 
@@ -15,7 +16,7 @@ async def setup_db(sanic_src: Sanic):
     sanic_src.ctx.etl = BlockchainETL()
     sanic_src.ctx.dex_db = MongoDBDex()
     sanic_src.ctx.cdp_db = MongoDBCDP()
-
+    sanic_src.ctx.community_db = MongoDBCommunity()
 
 async def setup_cache(sanic_src: Sanic):
     sanic_src.ctx.redis = redis.from_url(RedisConfig.CONNECTION_URL)
