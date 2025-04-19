@@ -114,6 +114,10 @@ class SignalExplainer:
             if signal.get("_id", signal.get("id")) not in explained_signals_ids
         ]
 
+        if len(signals) == 0:
+            logger.info("No signals to explain")
+            return []
+        
         for signal in signals:
             explanation = self.explain_signal(signal)
             signal["_id"] = signal.get("_id", signal.get("id"))
