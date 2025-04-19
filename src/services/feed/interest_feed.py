@@ -153,6 +153,8 @@ class GetInterestFeed:
                 "lastUpdated": i["publish_date_timestamp"],
                 "content": i["summary"],
                 "type": "news",
+                "imgUrl": i["img_url"],
+                "url": i["url"],
             }
             for i in list(feed)[:10]
         ]
