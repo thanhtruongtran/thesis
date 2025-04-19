@@ -339,11 +339,13 @@ class SignalExplanationPromptTemplate(BasePromptTemplate):
             - close_position: Close position in jupiter perpetual.
             - swap: Swap event of whale.
 
-        Your response must meet the following criteria:
-            - It only contains the explanation of the signal, no additional information.
-            - It should be very natural, human-like, short, creative and do not repeat the same tone.
-            - No need introduction, definition, go straight to the explanation.
-            - No need talk about impact, just explain the signal.
+        Important rules:
+            - Do NOT use the same tone or wording structure every time. Each explanation must feel fresh, with a different style or personality.
+            - Be creative with phrasing, sentence rhythm, and expression.
+            - The explanation should feel natural, human-like, short, and organic.
+            - No definitions or introductions. Jump straight into the explanation.
+            - No impact analysis, no intro, no context, no explanation of terms—just say what the signal shows.
+            - No need exclamation or excitement.
      
         Here is your information:
         - Signal Type: {signal_type}
