@@ -13,6 +13,7 @@ from websockets import ConnectionClosed, ConnectionClosedError, ConnectionClosed
 from src.constants.signal import SignalStream
 from src.constants.time import TimeConstants
 from src.models.signal import WebsocketSignalsQuery
+from src.databases.mongodb_community import MongoDBCommunity
 from src.utils.logger import get_logger
 from src.utils.time import round_timestamp
 from scripts.count_database_queries import count_db_queries
@@ -53,30 +54,50 @@ async def get_used_requests_and_signals(request: Request):
         }
     })
 
+# @signals_bp.get('/signals')
+# @openapi.tag("DeFAI")
+# @openapi.summary("Get latest signals")
+# async def get_latest_signals(request: Request):
+#     r: redis.Redis = request.app.ctx.async_redis
+
+#     n_signals = int(request.args.get("limit", 10))
+#     chain_id = request.args.get("chainId")
+#     signal_type = request.args.get("type")
+
+#     last_id = '+'
+#     signals = {}
+
+#     messages = await r.xrevrange(SignalStream.stream_name, max=last_id, count=n_signals)
+
+#     for entry_id, message in messages:
+#         signal = js.loads(message['msg'])
+#         if not check_signal_by_filter(signal, chain_id=chain_id, signal_type=signal_type, signal_filter_str=None):
+#             continue
+#         signals[signal.get('_id', signal.get('id'))] = signal
+
+#     signals = list(signals.values())
+#     signals.sort(key=lambda x: x['blockNumber'])
+#     return json({
+#         "data": signals,
+#         "message": "Success"
+#     })
+
+
 @signals_bp.get('/signals')
 @openapi.tag("DeFAI")
 @openapi.summary("Get latest signals")
 async def get_latest_signals(request: Request):
-    r: redis.Redis = request.app.ctx.async_redis
+    mongodb: MongoDBCommunity = request.app.ctx.community_db
 
-    n_signals = int(request.args.get("limit", 10))
-    chain_id = request.args.get("chainId")
-    signal_type = request.args.get("type")
-
-    last_id = '+'
-    signals = {}
-
-    messages = await r.xrevrange(SignalStream.stream_name, max=last_id, count=n_signals)
-
-    for entry_id, message in messages:
-        signal = js.loads(message['msg'])
-        if not check_signal_by_filter(signal, chain_id=chain_id, signal_type=signal_type, signal_filter_str=None):
-            continue
-        signals[signal.get('_id', signal.get('id'))] = signal
-
-    signals = list(signals.values())
+    cursor = mongodb._db["defi_signals"].find(
+        {
+            "timestamp": {"$gte": int(time.time()) - 1800},
+        },
+        {"_id":0}
+    )
+    signals = list(cursor)
     signals.sort(key=lambda x: x['blockNumber'])
-
+    
     return json({
         "data": signals,
         "message": "Success"

@@ -125,5 +125,5 @@ class SignalExplainer:
             signal["isExplained"] = True
 
         if len(signals) > 0:
-            self.mongodb_community.update_docs(collection_name="defi_signals", data=signals)
+            self.mongodb_community.update_docs(collection_name="defi_signals", data=signals, merge=False)
             logger.info(f"Explained {len(signals)} signals")
