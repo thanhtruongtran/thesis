@@ -66,7 +66,7 @@ class SignalExplainer:
         signals = {
             k: v
             for k, v in signals.items()
-            if v.get("timestamp") > int(time.time()) - 600
+            if v.get("timestamp") > int(time.time()) - 1200
         }
 
         signal_list = list(signals.values())
@@ -101,10 +101,25 @@ class SignalExplainer:
         """Get signals and add explanations"""
         signals = self.get_signals(n_signals, chain_id, signal_type)
 
+        explained_signals = self.mongodb_community._db["defi_signals"].find(
+            {
+                "isExplained": {"$exists": True},
+                "_id": {"$in": [signal.get("_id", signal.get("id")) for signal in signals]},
+            },
+        )
+        explained_signals_ids = {signal["_id"] for signal in explained_signals}
+        signals = [
+            signal
+            for signal in signals
+            if signal.get("_id", signal.get("id")) not in explained_signals_ids
+        ]
+
         for signal in signals:
             explanation = self.explain_signal(signal)
             signal["_id"] = signal.get("_id", signal.get("id"))
             signal["explanation"] = explanation
+            signal["isExplained"] = True
 
-        self.mongodb_community.update_docs(collection_name="defi_signals", data=signals)
-        logger.info(f"Explained {len(signals)} signals")
+        if len(signals) > 0:
+            self.mongodb_community.update_docs(collection_name="defi_signals", data=signals)
+            logger.info(f"Explained {len(signals)} signals")
