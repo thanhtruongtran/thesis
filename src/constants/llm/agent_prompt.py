@@ -319,3 +319,42 @@ class EntityExtractionPromptTemplate(BasePromptTemplate):
             template=self.prompt,
             input_variables=["text"],
         )
+    
+
+class SignalExplanationPromptTemplate(BasePromptTemplate):
+    prompt: str = """
+        <s>[INST] As a DeFi analytics expert explaining blockchain signals, your task is to explain the given DeFi signal in detail.
+        I will provide you with signal type, value of the signal, chain name, tokens related to the signal, project related to the signal.
+        I have some signal type that are described below:
+            - add_liquidity: Add liquidity to a pool.
+            - remove_liquidity: Remove liquidity from a pool.
+            - temporarily_exit: User temporarily removed liquidity from a pool and added it back after a while.
+            - new_listing: New pair listed on DEX.
+            - deposit: Deposit lending event.
+            - withdraw: Withdraw lending event.
+            - borrow: Borrow lending event.
+            - repay: Repay lending event.
+            - liquidate: Liquidate event.
+            - open_position: Open position in jupiter perpetual.
+            - close_position: Close position in jupiter perpetual.
+            - swap: Swap event of whale.
+
+        Your response must meet the following criteria:
+            - It only contains the explanation of the signal, no additional information.
+            - It should be very natural, human-like, short, creative and do not repeat the same tone.
+            - No need introduction, definition, go straight to the explanation.
+            - No need talk about impact, just explain the signal.
+     
+        Here is your information:
+        - Signal Type: {signal_type}
+        - Value: {value}
+        - Chain name: {chain_name}
+        - Tokens: {tokens}
+        - Project: {project}
+        """
+
+    def create_template(self) -> PromptTemplate:
+        return PromptTemplate(
+            template=self.prompt,
+            input_variables=["signal_type", "chain_id", "block_number", "signal_data"],
+        )
