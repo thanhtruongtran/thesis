@@ -29,7 +29,6 @@ async def get_feed(request):
 async def get_interest_feed(request):
     user_id = request.args.get("user_id")
     feeds = GetInterestFeed(user_id).get_interest_feed()
-    feeds = sorted(feeds, key=lambda x: x["lastUpdated"], reverse=True)
 
     return json(feeds)
 
