@@ -83,7 +83,6 @@ class PostAnalysisJob(SchedulerJob):
                 logger.info("Post Analysis Job finished !")
 
     def get_recent_analysis_post(self, posted_token_lst, top_mentioned_tokens):
-        print(f"posted tokens: {posted_token_lst}")
         pipeline = [
             {
                 "$match": {
@@ -98,23 +97,28 @@ class PostAnalysisJob(SchedulerJob):
         update_lst = []
         used_materials = []
         for token_info in top_token:
-            if len(update_lst) >= 2:
+            if len(update_lst) >= 5:  # Tăng lên 5 bài mỗi lần
                 break
 
             if (token_info["symbol"] not in posted_token_lst) & (
                 token_info["symbol"] in top_mentioned_tokens
             ):
                 analysis = AnalysisPostingService(token_info=token_info)
-
                 response, timeseries_data = analysis.get_recent_analysis_post()
                 if response != {}:
                     print(f"token posted: {token_info['symbol']}")
                     _id = token_info["symbol"] + "_" + str(round_timestamp(time.time()))
                     update_lst.append(
-                        self._get_update_info(_id, token_info["symbol"], response)
+                        self._get_update_info(
+                            _id=_id,
+                            symbol=token_info["symbol"],
+                            response=response,
+                            chain_id=token_info.get("chainId"),
+                        ),
                     )
+
                     used_materials.append(
-                        self._used_materials(_id, timeseries_data=timeseries_data)
+                        self._used_materials(_id=_id, timeseries_data=timeseries_data)
                     )
 
         print(f"num recent posts: {len(update_lst)}")
@@ -124,7 +128,9 @@ class PostAnalysisJob(SchedulerJob):
         )
 
         self.cdp.update_docs(
-            collection_name="agent_used_documents", data=used_materials, merge=True
+            collection_name="agent_used_documents",
+            data=used_materials,
+            merge=True,
         )
 
     def get_period_analysis_post(
@@ -152,12 +158,15 @@ class PostAnalysisJob(SchedulerJob):
 
             update_lst = []
             used_materials = []
+
+            # Duyệt qua các token được đề cập nhiều
             for token in top_mentioned_tokens:
-                _id = token + "_" + str(round_timestamp(time.time()))
-                if len(update_lst) >= 2:
+                if len(update_lst) >= 5:
                     break
-                if token not in posted_token_lst:
+
+                if token not in posted_token_lst:  # Chưa được post
                     if token not in top_50_token_change_cursor:
+                        # Xử lý token không nằm trong top 50 thay đổi
                         pipeline = [
                             {
                                 "$match": {
@@ -183,8 +192,15 @@ class PostAnalysisJob(SchedulerJob):
                             )
                             print(f"token posted: {token}")
 
+                            _id = token + "_" + str(round_timestamp(time.time()))
                             update_lst.append(
-                                self._get_update_info(_id, token, response, replies)
+                                self._get_update_info(
+                                    _id,
+                                    token,
+                                    response,
+                                    replies,
+                                    chain_id=token_info.get("chainId"),
+                                )
                             )
                             used_materials.append(
                                 self._used_materials(
@@ -218,13 +234,26 @@ class PostAnalysisJob(SchedulerJob):
 
                             print(f"token posted: {token_info['symbol']}")
 
+                            _id = (
+                                token_info["symbol"]
+                                + "_"
+                                + str(round_timestamp(time.time()))
+                            )
                             update_lst.append(
                                 self._get_update_info(
-                                    _id, token_info["symbol"], response, replies
+                                    _id,
+                                    token_info["symbol"],
+                                    response,
+                                    replies,
+                                    chain_id=token_info.get("chainId"),
                                 )
                             )
+
                             used_materials.append(
-                                self._used_materials(_id, tweets=token_tweets)
+                                self._used_materials(
+                                    _id,
+                                    timeseries_data=timeseries_data,
+                                )
                             )
 
             print(f"num period posts: {len(update_lst)}")
@@ -244,8 +273,7 @@ class PostAnalysisJob(SchedulerJob):
             used_materials = []
 
             for token in top_mentioned_tokens:
-                _id = token + "_" + str(round_timestamp(time.time()))
-                if len(update_lst) >= 2:
+                if len(update_lst) >= 5:
                     break
                 else:
                     if token not in posted_token_lst:
@@ -260,8 +288,11 @@ class PostAnalysisJob(SchedulerJob):
                                 )
                             )
 
+                            _id = token + "_" + str(round_timestamp(time.time()))
                             update_lst.append(
-                                self._get_update_info(_id, token, response, replies)
+                                self._get_update_info(
+                                    _id, token, response, replies, chain_id=chain_id
+                                )
                             )
                             used_materials.append(
                                 self._used_materials(_id, tweets=token_tweets)
@@ -278,36 +309,6 @@ class PostAnalysisJob(SchedulerJob):
                 data=used_materials,
                 merge=True,
             )
-
-            # pipeline = [
-            #     {
-            #         "$match": {
-            #             "symbol": token,
-            #         }
-            #     },
-            #     {"$sort": {"marketCapSevendayChangeScore": -1}},
-            #     {"$limit": 1},
-            # ]
-
-            # top_token = self.cdp._db["entity_change_ranking"].aggregate(pipeline)
-
-            # for token_info in top_token:
-            #     analysis = AnalysisPostingService(token_info=token_info)
-
-            #     response, replies = analysis.get_period_analysis_post()
-
-            #     print(f"token posted: {token_info['symbol']}")
-
-            #     update_lst.append(
-            #         self._get_update_info(
-            #             token_info["symbol"], response, replies
-            #         )
-            #     )
-
-            print(f"num period posts: {len(update_lst)}")
-            # self.cdp.update_docs(
-            #     collection_name="agent_contents", data=update_lst, merge=True
-            # )
 
     def get_recent_category_analysis_post(
         self, posted_token_lst, top_category_mentioned_tokens
@@ -348,6 +349,7 @@ class PostAnalysisJob(SchedulerJob):
                                     _id=_id,
                                     symbol=token_info["symbol"],
                                     response=response,
+                                    chain_id=token_info.get("chainId"),
                                 ),
                             )
 
@@ -370,6 +372,7 @@ class PostAnalysisJob(SchedulerJob):
                                     _id=_id,
                                     symbol=token_info["symbol"],
                                     response=response,
+                                    chain_id=token_info.get("chainId"),
                                 ),
                             )
 
@@ -390,6 +393,7 @@ class PostAnalysisJob(SchedulerJob):
                                 _id=_id,
                                 symbol=token_info["symbol"],
                                 response=response,
+                                chain_id=token_info.get("chainId"),
                             ),
                         )
 
@@ -473,7 +477,13 @@ class PostAnalysisJob(SchedulerJob):
                             print(f"token posted: {token}")
 
                             update_lst.append(
-                                self._get_update_info(_id, token, response, replies)
+                                self._get_update_info(
+                                    _id,
+                                    token,
+                                    response,
+                                    replies,
+                                    chain_id=token_info.get("chainId"),
+                                )
                             )
                             used_materials.append(
                                 self._used_materials(
@@ -512,7 +522,10 @@ class PostAnalysisJob(SchedulerJob):
 
                             update_lst.append(
                                 self._get_update_info(
-                                    token_info["symbol"], response, replies
+                                    token_info["symbol"],
+                                    response,
+                                    replies,
+                                    chain_id=token_info.get("chainId"),
                                 )
                             )
 
@@ -578,11 +591,12 @@ class PostAnalysisJob(SchedulerJob):
             merge=True,
         )
 
-    def _get_update_info(self, _id, symbol, response, replies=[], type=""):
+    def _get_update_info(
+        self, _id, symbol, response, replies=[], type="", chain_id=None
+    ):
         update_info = dict()
         if type == "":
             update_info["type"] = "analysis"
-
         else:
             update_info["type"] = type
 
@@ -591,6 +605,7 @@ class PostAnalysisJob(SchedulerJob):
         update_info["upToDate"] = True
         update_info["content"] = response
         update_info["_id"] = _id
+        update_info["chainId"] = chain_id
         if len(replies) > 0:
             reply_dct = dict()
             reply_dct["replies"] = replies
