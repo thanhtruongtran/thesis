@@ -1,295 +1,114 @@
-import pandas as pd
+import datetime
+import os
+import sys
+import time
 
-from src.constants.llm.agent_prompt import (
-    KeywordMentionedPromptTemplate,
-    PeriodAnalysisPromptTemplate,
-    RecentAnalysisPromptTemplate,
-    TrendingMentionedTokenPromptTemplate,
-)
-from src.constants.text_processing import TwitterTweetConstant
+sys.path.append(os.getcwd())
+from src.constants.llm.agent_prompt import AnalysisPromptTemplate
+from src.databases.mongodb_cdp import MongoDBCDP
+from src.databases.mongodb_community import MongoDBCommunity
+from src.databases.mongodb_klg import MongoDBKLG
 from src.services.llm.communication import LLMCommunication
-from src.utils.time import change_timestamp
 
 
 class AnalysisPostingService:
-    def __init__(self, token_info=None, symbol=None):
+    def __init__(self):
         self.llm = LLMCommunication()
-        self.token_info = token_info
-        self.symbol = symbol
+        self.mongodb_community = MongoDBCommunity()
+        self.mongodb_cdp = MongoDBCDP()
+        self.mongodb_klg = MongoDBKLG()
 
-    ## Notinggg
-    def get_request_analysis_post(self, isContent=True):  # Generate post for DA request
-        timeseries_data = dict()
-        token_data = self.token_info["symbol"]
-        fields = self._get_timeseries_data(list(self.token_info.keys()))
-        for field in fields:
-            if ("ChangeLogs" in field) & (
-                ("activeUsers" not in field) | ("activeHolders" not in field)
-            ):
-                timeseries_data[field] = self.token_info[field]
+    def _convert_timestamp(self, timestamp):
+        """
+        Convert Unix timestamp to human-readable datetime string
+        """
+        return datetime.datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d %H:%M:%S")
 
-        if isContent is True:
-            if timeseries_data != {}:
-                converted_data = {
-                    outer_key: {
-                        change_timestamp(int(inner_key)): value
-                        for inner_key, value in inner_dict.items()
-                    }
-                    for outer_key, inner_dict in timeseries_data.items()
-                }
+    def _format_timeseries_data(self, data):
+        """
+        Format timeseries data to highlight time elements
+        """
+        if not data:
+            return {}
 
-                news_prompt_template = RecentAnalysisPromptTemplate()
-                template = news_prompt_template.create_template()
-                prompt = template.format(
-                    analysis_token=token_data,
-                    timeseries_data=converted_data,
+        formatted_data = {}
+        for timestamp, value in data.items():
+            formatted_time = self._convert_timestamp(int(timestamp))
+            formatted_data[formatted_time] = value
+        return formatted_data
+
+    def get_entity_info(self):
+        cursor = self.mongodb_cdp._db["entity_change_ranking"].find(
+            {
+                "$or": [
+                    {"recentChangeScore": {"$gt": 1}},
+                    {"tvlSevendayChangeScore": {"$gt": 1}},
+                ]
+            }
+        )
+        info_lst = list(cursor)
+
+        projects_info = []
+        for doc in info_lst:
+            if "idDefiLlama" in doc:
+                klg_doc = self.mongodb_klg._db["projects"].find_one(
+                    {"_id": doc["idDefiLlama"]}
                 )
-                response = self.llm.send_prompt(prompt)
+                doc["imgUrl"] = klg_doc.get("imgUrl")
+                doc["website"] = klg_doc.get("socialAccounts").get("website")
+                projects_info.append(doc)
 
-            else:
-                response = {}
+        tokens_info = []
+        for doc in info_lst:
+            if "idCoingecko" in doc:
+                klg_doc = self.mongodb_klg._db["smart_contracts"].find_one(
+                    {"idCoingecko": doc["idCoingecko"]}
+                )
+                doc["imgUrl"] = klg_doc.get("imgUrl")
+                doc["website"] = f"https://bscscan.com/address/{klg_doc['address']}"
+                tokens_info.append(doc)
 
-        else:
-            return timeseries_data
+        return projects_info, tokens_info
 
+    def analyze_info(self, info):
+        analysis_prompt_template = AnalysisPromptTemplate()
+        template = analysis_prompt_template.create_template()
+
+        prompt = template.format(
+            entity=info.get("idDefiLlama", info.get("idCoingecko")),
+            timeseries_data=info.get("timeseries_data"),
+            tag=info.get("tag"),
+        )
+
+        response = self.llm.send_prompt(prompt)
         return response
 
-    # def get_recent_analysis_post(
-    #     self, isContent=True
-    # ):  # Generate post based only on the relavent short term timeseries data
-    #     timeseries_data = dict()
-    #     token_data = self.token_info["symbol"]
-    #     fields = self._get_timeseries_data(list(self.token_info.keys()))
-    #     for field in fields:
-    #         if ("ChangeLogs" in field) & (
-    #             ("activeUsers" not in field) | ("activeHolders" not in field)
-    #         ):
-    #             specific_fields = field[: -len("ChangeLogs")]
-    #             if (
-    #                 str(round_timestamp(time.time()))
-    #                 in self.token_info[f"{specific_fields}AnomalPoints"]
-    #             ) | (
-    #                 str(round_timestamp(time.time() - 86400))
-    #                 in self.token_info[f"{specific_fields}AnomalPoints"]
-    #             ):
-    #                 timeseries_data[field] = self.token_info[field]
+    def post_analysis(self):
+        list_analysis = []
+        projects_info, tokens_info = self.get_entity_info()
 
-    #     if isContent is True:
-    #         if timeseries_data != {}:
-    #             converted_data = {
-    #                 outer_key: {
-    #                     change_timestamp(int(inner_key)): value
-    #                     for inner_key, value in inner_dict.items()
-    #                 }
-    #                 for outer_key, inner_dict in timeseries_data.items()
-    #             }
+        # Process projects
+        for project in projects_info:
+            tvl_data = project.get("tvlByChainsChangeLogs", {})
+            project["timeseries_data"] = {"tvl": self._format_timeseries_data(tvl_data)}
+            project["tag"] = "project"
+            response = self.analyze_info(project)
+            project["analysis"] = response
+            project["lastUpdated"] = int(time.time())
+            list_analysis.append(project)
 
-    #             news_prompt_template = RecentAnalysisPromptTemplate()
-    #             template = news_prompt_template.create_template()
-    #             prompt = template.format(
-    #                 analysis_token=token_data,
-    #                 timeseries_data=converted_data,
-    #             )
+        # Process tokens
+        for token in tokens_info:
+            price_data = token.get("priceChangeLogs", {})
+            market_cap_data = token.get("marketCapChangeLogs", {})
+            token["timeseries_data"] = {
+                "price": self._format_timeseries_data(price_data),
+                "market_cap": self._format_timeseries_data(market_cap_data),
+            }
+            token["tag"] = "token"
+            response = self.analyze_info(token)
+            token["analysis"] = response
+            token["lastUpdated"] = int(time.time())
+            list_analysis.append(token)
 
-    #             response = self.llm.send_prompt(prompt)
-
-    #         else:
-    #             response = {}
-
-    #     else:
-    #         return timeseries_data
-
-    #     return response, timeseries_data
-
-    def get_period_analysis_post(
-        self, isContent=True
-    ):  # Generate post based only on the relavent long term timeseries data
-        timeseries_data = dict()
-        anomal_data = dict()
-        fields = self._get_timeseries_data(list(self.token_info.keys()))
-
-        ## preparing timeseries data
-        for field in fields:
-            if "ChangeLogs" in field:
-                originalField = field.split("ChangeLogs")[0]
-                if field in ["activeUsersChangeLogs", "activeHoldersChangeLogs"]:
-                    if (
-                        int(
-                            sum(self.token_info[field].values())
-                            / len(self.token_info[field])
-                        )
-                        >= 1000
-                    ):
-                        timeseries_data[field] = self.token_info[field]
-                        anomal_data[f"{originalField}AnomalPoints"] = self.token_info[
-                            f"{originalField}AnomalPoints"
-                        ]
-                    else:
-                        continue
-                timeseries_data[field] = self.token_info[field]
-                anomal_data[f"{originalField}AnomalPoints"] = self.token_info[
-                    f"{originalField}AnomalPoints"
-                ]
-
-        token_data = self.token_info["symbol"]
-
-        period_df = pd.DataFrame.from_dict(timeseries_data).reset_index(
-            names="timestamp"
-        )
-        period_df["timestamp"] = period_df["timestamp"].apply(
-            lambda x: change_timestamp(int(x))
-        )
-
-        timeseries_data = period_df.to_dict(orient="records")
-
-        ## preparing anomal data
-        converted_anomal_data = {
-            key: [change_timestamp(int(ts)) for ts in values]
-            for key, values in anomal_data.items()
-        }
-
-        if isContent is True:  ## return context, replies, timeseries data
-            news_prompt_template = PeriodAnalysisPromptTemplate()
-            template = news_prompt_template.create_template()
-            prompt = template.format(
-                analysis_token=token_data,
-                timeseries_data=timeseries_data,
-                anomal_points=converted_anomal_data,
-            )
-
-            response, replies = self._gen_response(prompt=prompt)
-
-            return response, replies, timeseries_data
-
-        else:  ## only return timeseries data and anomal data
-            return timeseries_data, converted_anomal_data
-
-    def get_summarized_top_token_post(
-        self, tweets
-    ):  # Generate post based on the relavent tweets posts and timeseries data
-        timeseries_data = dict()
-        anomal_data = dict()
-
-        ## preparing timeseries data
-        fields = self._get_timeseries_data(list(self.token_info.keys()))
-
-        for field in fields:
-            if "ChangeLogs" in field:
-                originalField = field.split("ChangeLogs")[0]
-                if field in ["activeUsersChangeLogs", "activeHoldersChangeLogs"]:
-                    if (
-                        int(
-                            sum(self.token_info[field].values())
-                            / len(self.token_info[field])
-                        )
-                        >= 1000
-                    ):
-                        timeseries_data[field] = self.token_info[field]
-                        anomal_data[f"{originalField}AnomalPoints"] = self.token_info[
-                            f"{originalField}AnomalPoints"
-                        ]
-                    else:
-                        continue
-                timeseries_data[field] = self.token_info[field]
-                anomal_data[f"{originalField}AnomalPoints"] = self.token_info[
-                    f"{originalField}AnomalPoints"
-                ]
-
-        period_df = pd.DataFrame.from_dict(timeseries_data).reset_index(
-            names="timestamp"
-        )
-        period_df["timestamp"] = period_df["timestamp"].apply(
-            lambda x: change_timestamp(int(x))
-        )
-
-        timeseries_data = period_df.to_dict(orient="records")
-
-        news_prompt_template = TrendingMentionedTokenPromptTemplate()
-        template = news_prompt_template.create_template()
-        prompt = template.format(
-            symbol=self.symbol,
-            tweets=tweets,
-            timeseries_data=timeseries_data,
-        )
-
-        response, replies = self._gen_response(prompt=prompt)
-
-        # Return responses, replies, and used materials: tweets and timeseries data
-        return response, replies, timeseries_data
-
-    def get_keyword_summarized_tweet_post(
-        self, tweets
-    ):  # Generate post based on the input keyword
-        prompt_template = KeywordMentionedPromptTemplate()
-        template = prompt_template.create_template()
-        prompt = template.format(keyword=self.symbol, tweets=tweets)
-
-        response, replies = self._gen_response(prompt=prompt)
-        return response, replies
-
-    def _get_timeseries_data(self, fields):
-        change_logs_suffix = "ChangeLogs"
-        anomal_points_suffix = "AnomalPoints"
-        change_logs = {
-            f[: -len(change_logs_suffix)]
-            for f in fields
-            if f.endswith(change_logs_suffix)
-        }
-        anomal_points = {
-            f[: -len(anomal_points_suffix)]
-            for f in fields
-            if f.endswith(anomal_points_suffix)
-        }
-        common_bases = change_logs & anomal_points
-
-        # Construct the filtered list
-        filtered_fields = {base + change_logs_suffix for base in common_bases} | {
-            base + anomal_points_suffix for base in common_bases
-        }
-
-        return filtered_fields
-
-    def _gen_response(self, prompt):
-        """
-        generate response, including check the format of the post
-        """
-
-        replies = []
-        check = False
-        while not check:
-            responses = self.llm.send_prompt(prompt).split("//")
-            check = self._check_format(responses=responses)
-            if check:
-                for idx in range(1, len(responses)):
-                    replies.append(responses[idx])
-
-        return responses[0], replies
-
-    def _check_breakline(self, txt):
-        """ "
-        Check if right format, rule of this format:
-        - Each break line should not exceed the length of two lines on Twitter.
-        """
-        if len(txt) > 2 * TwitterTweetConstant.LENGTH_PER_LINE:
-            txt_split = txt.split("\n")
-            if len(txt_split) <= 1:
-                return False
-            else:
-                for txt in txt_split:
-                    if len(txt) > 2 * TwitterTweetConstant.LENGTH_PER_LINE:
-                        return False
-
-        return True
-
-    def _check_format(self, responses):
-        """
-        return True if content statisfied breakline and smaller than maximum tweet length
-
-        """
-        for idx in range(0, len(responses)):
-            if (not self._check_breakline(responses[idx])) | (
-                len(responses[idx]) > TwitterTweetConstant.BASIC_MAXIMUM_LENGTH
-            ):
-                return False
-
-        return True
+        return list_analysis

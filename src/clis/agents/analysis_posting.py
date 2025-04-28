@@ -28,39 +28,12 @@ from src.constants.time import TimeConstants
     type=bool,
     help="False to wait until interval then run",
 )
-@click.option(
-    "-c",
-    "--category",
-    default="",
-    show_default=True,
-    type=str,
-    help="Category of specific fields in blockchain (By Defillama)",
-)
-@click.option(
-    "-ch",
-    "--chain_id",
-    default="all",
-    show_default=True,
-    type=str,
-    help="Post about tokens of specific chain",
-)
-@click.option(
-    "-kw",
-    "keyword",
-    default="",
-    show_default=True,
-    type=str,
-    help="Input keyword post wanted to post",
-)
-def analysis_posting(interval, delay, run_now, category, chain_id, keyword):
+def analysis_posting(interval, delay, run_now):
     from src.jobs.core.post_analysis import PostAnalysisJob
 
     job = PostAnalysisJob(
         interval=interval,
         delay=delay,
         run_now=run_now,
-        category=category,
-        chain_id=chain_id,
-        keyword=keyword,
     )
     job.run()
