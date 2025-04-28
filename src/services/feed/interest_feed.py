@@ -154,7 +154,17 @@ class GetInterestFeed:
                 "url": 1,
                 "type": 1,
             }
-        ).sort("publish_date_timestamp", -1)
-        result = list(feed)
+        ).sort("publish_date_timestamp", -1).limit(10)
+        result = [
+            {
+                "keyWord": i["title"],
+                "lastUpdated": i["publish_date_timestamp"],
+                "content": i["summary"],
+                "type": "news",
+                "imgUrl": i["img_url"],
+                "url": i["url"],
+            }
+            for i in feed
+        ]
 
         return result

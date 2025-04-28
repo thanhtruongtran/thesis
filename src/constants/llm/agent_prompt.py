@@ -80,218 +80,44 @@ class ReplyNewsPromptTemplate(BasePromptTemplate):
         )
 
 
-class RecentAnalysisPromptTemplate(BasePromptTemplate):
+class AnalysisPromptTemplate(BasePromptTemplate):
     prompt: str = """
-        <s>[INST] As a helpful agent that is an Analyst in Web3 Community. Your task is to generate an Up To Date analysis report based on my provided information such as: token, the timeseries data of that token (For example: TVL (Total value locked), MarketCap, Prices or their users like number of Active Users, Holders) [/INST]
+        <s>[INST] You are a helpful agent specialized in analyzing the Web3 market.
+        Your task is to generate an Up-To-Date, concise analysis report based on the provided information, focusing specifically on the most notable changes in the latest days.
 
-        Your response must meet the following criteria:
-        - Using free formating style to start the Twitter post.
-        - It must be under 220 characters.
-        - The analysis MUST ONLY focus on the trend of lattest days where happening significant rise or drop.
-        - Prefer to show the percentage rising or falling instead of specific price, only take price when it is so significant.
-        - It must be informative and follow the tone of summary.
-        - It must mention token with capitalize characters and $ appear first if applicable (For examples: $LINK).
-        - Do not contains emoji, hashtags.
-        - The post should be very shorten and should break the line for each idea (Go down two lines).
-        - One line NOT exceed 2 sentences.
-        - NOT include the promotion or engagement content in the last sentence of the post (Like: Keep an eye on.. ,Stay up to date).
-        - Using paraphrase word of significant.
+        You will receive:
+        - Entity name
+        - Timeseries data of the entity
+        - Tag of the entity (token or project)
 
+        Interpretation Guide:
+        - If tag = token: Analyze both Price and MarketCap trends.
+        - If tag = project: Analyze the TVL trend.
+
+        Your analysis must:
+        - Paraphrase the information in only 3-4 sentences, no more than 280 characters.
+        - No definitions or introductions. Jump straight into the analysis.
+        - Focus ONLY on significant recent movements (sharp rises or drops).
+        - Prioritize mentioning the percentage change over absolute numbers, unless the price/TVL/marketcap level is exceptionally notable.
+        - Highlight if price, marketcap, or TVL hits new highs/lows recently.
+        - Use a free-format style suited for a Twitter post.
+        - Mentioning token names with $ and fully capitalized (e.g., $LINK).
+        - Maintain an informative, summarizing tone.
+        - DO NOT add promotional/engagement/introductory phrases (such as "stay tuned", "keep an eye").
+        - Do NOT use the same tone or wording structure every time.
+        - Exclude emojis, hashtags, and icons. 
 
         Here is your information:
-        - Token: {analysis_token}
+        - Entity: {entity}
         - TimeseriesData: {timeseries_data}
-        """
+        - Tag: {tag}
+        [/INST]
+    """
 
     def create_template(self) -> PromptTemplate:
         return PromptTemplate(
             template=self.prompt,
-            input_variables=["analysis_token", "timeseries_data"],
-        )
-
-
-class PeriodAnalysisPromptTemplate(BasePromptTemplate):
-    prompt: str = """
-        <s>[INST] As a helpful agent that is an Analyst in Web3 Community. Your task is to generate an summarize Period analysis report based on my provided information such as: token, the timeseries data of that token (For example: TVL (Total value locked), MarketCap, Prices or their users like number of Active Users, Holders and Anomal points - The points that value change significantly for these features). [/INST]
-
-        Your response must meet the following criteria:
-        - Using free formating style to start the Twitter post, it must be posted in Twitter with no more than 220 characters.
-        - The analysis is an very short analyze report on the overall trend whole period, focus on the lattest days, only talk about the main idea and main number.
-        - Prefer to show the percentage rising or falling instead of specific price, only take price when it is so significant.
-        - It must mention token with capitalize characters and $ appear first if applicable (For examples: $LINK).
-        - Do not contains hashtags, emojis
-        - You MUST devide different ideas into replies (Maximum 1-2 replies) by only character //, the first letter must be capitalized.
-        - The post should be very shorten and should break the line for each idea (Go down two line).
-        - One line NOT exceed 2 sentences.
-        - NOT include the promotion or engagement content in the last sentence of the post (Like: Keep an eye on.. ,Stay up to date).
-        - Using paraphrase word of significant.
-
-
-        Here is your information:
-        - Token: {analysis_token}
-        - AnomalPoints: {anomal_points}
-        - TimeseriesData: {timeseries_data}
-        """
-
-    def create_template(self) -> PromptTemplate:
-        return PromptTemplate(
-            template=self.prompt,
-            input_variables=["analysis_token", "anomal_points", "timeseries_data"],
-        )
-
-
-class TuningReplyPromptTemplate(BasePromptTemplate):
-    prompt: str = """
-        <s>[INST] As a helpful assistant in Twitter, your task is tuning the reply tweet to make it more natural like human.
-        I will provide you with the original post, user's reply tweet and my initial reply tweet. [/INST]
-
-        Your response must meet the following criteria:
-        - It must be a tweet, no additional information.
-        - It should be very very natural, human-like, not robotic.
-        - If user's reply tweet is too short and meaningless, generate a new reply tweet with joke, humor or meme tone.
-        - If my initial reply tweet is too detailed, tune it to a very short and relevant tweet.
-        - It must be short with a tone of reply, not a post.
-        - Do not contains emoji, hashtags.
-
-        Here is your information:
-        - Original Post: {original_tweet}
-        - User's Reply Tweet: {reply_tweet}
-        - My Initial Reply Tweet: {initial_reply_tweet}
-        """
-
-    def create_template(self) -> PromptTemplate:
-        return PromptTemplate(
-            template=self.prompt,
-            input_variables=["original_tweet", "reply_tweet", "initial_reply_tweet"],
-        )
-
-
-class TrendingMentionedTokenPromptTemplate(BasePromptTemplate):
-    prompt: str = """
-        <s>[INST] As a helpful agent that is an Analyst in Web3 Community. Your task is to generate an analysis or news Twitter post based on the given information about recent hot crypto tokens.
-        I will provide you symbol, recent tweets related to the token and timeseries data. 
-
-        Your response must meet the following criteria:
-        - Do not use the timeseries data in MOST cases, unless if there are all unuseful tweets information (For example: Do not have any analysis, news information), then use the Timeseries data and skip all that tweets.
-        - It must be posted in Twitter with no more than 260 characters.
-        - Prefer to show the PERCENTAGE rising or falling instead of specific number, only take price when it is so significant.
-        - It must mention token with capitalize characters and $ appear first if applicable (For examples: $LINK).
-        - You MUST devide different ideas into replies (Maximum 1-2 replies) by only character //, the first letter must be capitalized.
-        - NOT include the promotion or engagement content in the last sentence of the post (Like: Keep an eye on.. ,Stay up to date).
-        - Do not contains hashtags, emojis.
-        - The post must follow a format where each single idea, sentence is BROKEN into a new line (Go down two line), like below example.
-
-        Follow this format:
-            No more cap, I told you to buy $BUZZ.
-
-            You could make 20x - 30x from my calls.
-            
-            Now it's time for $ORAC (bro can literally predict future).
-
-            - FULL opensource github code
-            - AI Agent that helps and predicts the future
-
-
-        Here is your information:
-        - Symbol: {symbol}
-        - Tweets: {tweets}
-        - Timeseries data: {timeseries_data}
-        """
-
-    def create_template(self) -> PromptTemplate:
-        return PromptTemplate(
-            template=self.prompt,
-            input_variables=["symbol", "tweets", "timeseries_data"],
-        )
-
-
-class KeywordMentionedPromptTemplate(BasePromptTemplate):
-    prompt: str = """
-        <s>[INST] As a helpful agent that is an Analyst in Web3 Community. Your task is to generate an analysis or news Twitter post based on the given information about recent hot crypto keyword.
-        I will provide you keyword, recent tweets related to the keyword. 
-
-        Your response must meet the following criteria:
-
-        - It must be posted in Twitter with no more than 260 characters.
-        - The writting style should be in the formal written.
-        - Prefer to show the PERCENTAGE rising or falling instead of specific number, only take price when it is so significant.
-        - It must mention token with capitalize characters and $ appear first if applicable (For examples: $LINK).
-        - You MUST devide different ideas into replies if content is too long which is more than 260 characters (Maximum 1-2 replies) by only character //, the first letter must be capitalized.
-        - NOT include the promotion or engagement content in the last sentence of the post (Like: Keep an eye on.. ,Stay up to date).
-        - Do not contains hashtags, emojis.
-        - The post must follow a format where each single idea, sentence is BROKEN into a new line (Go down two line), like below example.
-
-        Follow this format:
-            $MLG down to 15m after LA vape cabal pump
-
-            That's -90% from ath in just 1.5 weeks. Adin eating an 85% loss on his position
-            Same wallet that bought 10m of jailstool was in $MLG and $TRUMP before
-
-            
-        Here is your information:
-        - Keyword: {keyword}
-        - Tweets: {tweets}
-        """
-
-    def create_template(self) -> PromptTemplate:
-        return PromptTemplate(
-            template=self.prompt,
-            input_variables=["keyword", "tweets"],
-        )
-
-
-class TokenNewsPromptTemplate(BasePromptTemplate):
-    prompt: str = """
-        <s>[INST] As a helpful agent that is an Analyst in Web3 Community. Your task is to generate an analysis or news Twitter post based on the given information about recent hot crypto tokens.
-        I will provide you symbol, list of recent news related to the token. 
-
-        Your response must meet the following criteria:
-            - Break the line for each sentence related to a summary.
-            - Must mention token/coin with capitalize characters and $ appear first if applicable (For examples: $LINK). 
-            - Limit to under 280 characters, avoiding summaries' tone or engagement/promotion/question phrases in the last sentence. 
-            - Exclude emojis, hashtags, and icons. 
-
-        Follow this format:
-            $BTC faces potential market shift.  
-            U.S. approved sale of 198,000 BTC from Silk Road, valued at $6.5 billion.  
-            Bitcoin dips below $92,000 on oversupply fears.
-
-        Here is your information:
-        - Symbol: {symbol}
-        - News: {news}
-        """
-
-    def create_template(self) -> PromptTemplate:
-        return PromptTemplate(
-            template=self.prompt,
-            input_variables=["symbol", "news"],
-        )
-
-
-class ReFormatPromptTemplate(BasePromptTemplate):
-    prompt: str = """
-        <s>[INST] As a helpful assistant in Twitter, your task is to reformat the tweet to make it more natural like human.
-        I will provide you with the original post. [/INST]
-
-        Your response must meet the following criteria:
-        - If original post has multiple sentences or ideas, must break the line for each sentence or idea.
-        - It should be very very natural, human-like, not robotic.
-        - Do not contains emoji, hashtags.
-        - Must not start with '@' character, but must use it to mention the project's username in the middle of the post.
-
-        An example of a good response:
-            $BTC faces potential market shift. 
-            U.S. approved sale of 198,000 BTC from Silk Road, valued at $6.5 billion. 
-            Bitcoin dips below $92,000 on oversupply fears.
-
-        Here is your information:
-        - Original Post: {original_tweet}
-        """
-
-    def create_template(self) -> PromptTemplate:
-        return PromptTemplate(
-            template=self.prompt,
-            input_variables=["original_tweet"],
+            input_variables=["entity", "timeseries_data", "tag"],
         )
 
 

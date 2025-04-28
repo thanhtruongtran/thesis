@@ -3,6 +3,7 @@ from sanic_ext import openapi
 
 from src.services.feed.get_feed import GetFeed
 from src.services.feed.interest_feed import GetInterestFeed
+from src.services.feed.get_analytics import GetAnalytics
 from src.utils.logger import get_logger
 
 logger = get_logger("Feed Blueprint")
@@ -45,3 +46,21 @@ async def get_all_feed(request):
 
     all_feed = feed_v0 + feed_v1
     return json(all_feed)
+
+
+@bp.get("/feed/analytics")
+@openapi.tag("Feed")
+@openapi.summary("Get Analytics Feed")
+async def get_analytics_feed(request):
+    analytics = GetAnalytics().get_analytics()
+    result = []
+    for doc in analytics:
+        result.append({
+            "img_url": doc["imgUrl"],
+            "analysis": doc["analysis"],
+            "tag": doc["tag"],
+            "timeseries_data": doc["timeseries_data"].get("price", []) or doc["timeseries_data"].get("tvl", []),
+            "website": doc["website"],
+        })
+
+    return json(result)

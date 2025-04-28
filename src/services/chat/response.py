@@ -38,7 +38,7 @@ class ChatResponse:
         self, text, num_keywords=10, num_context=0, context=""
     ):
         # save query in database
-        self.save_query(text)
+        # self.save_query(text)
         try:
             headers = {
                 "X-API-KEY": self.authorize_chat,
