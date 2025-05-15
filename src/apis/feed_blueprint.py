@@ -59,6 +59,7 @@ async def get_analytics_feed(request):
             "img_url": doc["imgUrl"],
             "analysis": doc["analysis"],
             "tag": doc["tag"],
+            "title": "7D Price" if doc["tag"] == "token" else "7D TVL",
             "timeseries_data": doc["timeseries_data"].get("price", []) or doc["timeseries_data"].get("tvl", []),
             "website": doc["website"],
         })
