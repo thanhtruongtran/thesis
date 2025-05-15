@@ -37,8 +37,6 @@ class ChatResponse:
     def get_response(
         self, text, num_keywords=10, num_context=0, context=""
     ):
-        # save query in database
-        # self.save_query(text)
         try:
             headers = {
                 "X-API-KEY": self.authorize_chat,
@@ -56,6 +54,8 @@ class ChatResponse:
                 json=request_body,
             )
             response = response.json().get("answer")
+            self.save_query(text, response)
+
             return response
         except Exception as e:
             logger.error(f"Error in get_response: {str(e)}")
@@ -92,24 +92,26 @@ class ChatResponse:
         return result_dict
 
     # function to save query of user, extract keywords and entities, and save in database
-    def save_query(self, query):
+    def save_query(self, query, response):
         timestamp = int(time.time())
-        entities = self.extract_entities(query)
-        entities = self.format_entities(entities)
+        # entities = self.extract_entities(query)
+        # entities = self.format_entities(entities)
+        entities = {}
 
-        # if all values are empty, then return
-        for key, value in entities.items():
-            if value:
-                break
-        else:
-            logger.info("No entities found")
-            return
+        # # if all values are empty, then return
+        # for key, value in entities.items():
+        #     if value:
+        #         break
+        # else:
+        #     logger.info("No entities found")
+        #     return
 
         data = {
             "_id": self.user_id,
             "history": {
                 timestamp: {
                     "query": query,
+                    "response": response,
                     "entities": entities,
                 }
             },
