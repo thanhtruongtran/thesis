@@ -32,6 +32,32 @@ class ChatResponse:
         self.mongodb = MongoDBCommunity()
         self.llm = LLMCommunication()
 
+    def get_response_no_save(
+        self, text, num_keywords=10, num_context=0, context=""
+    ):
+        try:
+            headers = {
+                "X-API-KEY": self.authorize_chat,
+                "Content-Type": "application/json",
+            }
+            request_body = {
+                "text": text,
+                "num_keywords": num_keywords,
+                "num_context": num_context,
+                "context": context,
+            }
+            response = requests.post(
+                f"{self.api_chat}/chat?user_id={self.user_id}&from_chatbot={self.FROM_CHATBOT}&client_id={self.CLIENT_ID}&from_platform={self.from_platform}&use_for_twitter={self.use_for_twitter}",
+                headers=headers,
+                json=request_body,
+            )
+            response = response.json().get("answer")
+    
+            return response
+        except Exception as e:
+            logger.error(f"Error in get_response: {str(e)}")
+            return None
+
     def get_response(
         self, text, num_keywords=10, num_context=0, context=""
     ):

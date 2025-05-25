@@ -13,6 +13,7 @@ from transformers import AutoModelForTokenClassification, AutoTokenizer
 from src.constants.llm.agent_prompt import EntityExtractionPromptTemplate
 from src.databases.mongodb_community import MongoDBCommunity
 from src.services.llm.communication import LLMCommunication
+from src.services.chat.response import ChatResponse
 from src.utils.logger import get_logger
 
 logger = get_logger("NER Service")
@@ -21,7 +22,8 @@ logger = get_logger("NER Service")
 class NERService:
     def __init__(self):
         self.db = MongoDBCommunity()
-        self.llm = LLMCommunication()
+        self.llm = LLMCommunication(model_name="gpt-4o-mini-search-preview")
+        self.chat = ChatResponse()
         self.model_name = "truongtt/blockchain-ner"
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
         self.model = AutoModelForTokenClassification.from_pretrained(self.model_name)
@@ -106,18 +108,25 @@ class NERService:
 
         response = self.llm.send_prompt(prompt)
         return response
+    
+    def find_link_entity(self, entities):
+        prompt = f"""With each entity in this list, give me only a relevant knowledge link that helps users learn more about that entity. 
+                    Your response is a dictionary, with key is entity and value is link of that entity.
+                    Here is the list of entities: {entities}.
+                    DO NOT add any information, sentence into your response, only just a dictionary
+                    """
+        
+        response = self.chat.get_response_no_save(text=prompt)
+        return response
 
     def process_entities(self, response):
         try:
-            # Handle empty or None response
             if not response:
                 logger.warning("Empty response from LLM")
                 return {}
 
-            # Try to parse as JSON first
             if isinstance(response, str):
                 try:
-                    # Try to find JSON-like structure in the string
                     start_idx = response.find("{")
                     end_idx = response.rfind("}") + 1
                     if start_idx != -1 and end_idx != 0:
@@ -132,23 +141,18 @@ class NERService:
             else:
                 entities = response
 
-            # Clean and standardize the entities
             cleaned_entities = {}
             for entity, entity_type in entities.items():
-                # Clean entity name
                 clean_entity = entity.strip()
                 if not clean_entity:
                     continue
 
-                # Clean entity type
                 clean_type = entity_type.strip()
                 if not clean_type:
                     continue
 
-                # Remove any trailing punctuation from entity name
                 clean_entity = clean_entity.rstrip(".,!?:;")
 
-                # Only add if both entity and type are non-empty
                 if clean_entity and clean_type:
                     cleaned_entities[clean_entity] = clean_type
 
@@ -217,7 +221,6 @@ class NERService:
                 if pred_tag != "O" and pred_tag != "X":
                     result.append((token, pred_tag))
 
-        # Gộp các entities liên tiếp
         return self.merge_entities(result)
 
     def predict_entities_from_db(self):
@@ -279,9 +282,9 @@ class NERService:
 if __name__ == "__main__":
     ner_service = NERService()
     response = ner_service.extract_entities(
-        """Unstaked redefines that playbook with autonomous AI agents that engage users, drive conversations, and reward participation across platforms like X and Telegram. These AI agents do more than schedule posts or send basic replies. For those seeking long-term presence instead of short-term noise, Unstaked delivers a smarter way to grow. With its AI agents and on-chain performance tracking, Unstaked ($UNSD) offers a model that is efficient, transparent, and already attracting serious interest, including millions raised during presale. For those focused on long-term utility over speculation, Unstaked stands out as a crypto project built for lasting relevance.
-"""
-    )
+        """Discover Ruvi AI’s Innovative EcosystemRuvi AI is changing the game with its decentralized AI superapp, striving to combine cutting-edge artificial intelligence with blockchain transparency. Built on strong community-driven fundamentals, Ruvi AI is designed to empower users with advanced AI capabilities while creating a secure and scalable ecosystem. A strategic alliance with WEEX Exchange adds depth to Ruvi AI’s trading ecosystem. With its presale momentum, robust fundamentals, and visionary partnerships, Ruvi AI stands out as a promising asset for tech-savvy enthusiasts. Learn MoreGet RUVI: https://presale.ruvi.ioWebsite: https://ruvi.ioWhitepaper: https://docs.ruvi.ioTelegram: https://t.me/ruviofficialTwitter/X: https://x.com/RuviAITry RUVI AI: https://web.ruvi.io/register""")
     # print(response)
     entities = ner_service.process_entities(response)
-    print(entities)
+    link_entities = ner_service.find_link_entity(list(entities.keys()))
+    # link_entities = ner_service.process_entities(link_entities)
+    print(link_entities)

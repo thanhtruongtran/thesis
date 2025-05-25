@@ -2,12 +2,14 @@ import os
 import sys
 import time
 
+import torch
+
 sys.path.append(os.getcwd())
 
-from src.constants.llm.agent_prompt import NewsPromptTemplate
-from src.services.llm.communication import LLMCommunication
-from src.databases.mongodb_community import MongoDBCommunity
+from sentence_transformers import SentenceTransformer, util
+
 from src.databases.mongodb_cdp import MongoDBCDP
+from src.databases.mongodb_community import MongoDBCommunity
 from src.utils.logger import get_logger
 
 logger = get_logger("Get Interest Feed")
@@ -18,146 +20,94 @@ class GetInterestFeed:
         self.user_id = user_id
         self.mongodb_community = MongoDBCommunity()
         self.mongodb_cdp = MongoDBCDP()
-        self.llm = LLMCommunication()
+        self.model = SentenceTransformer("all-MiniLM-L6-v2")
 
-    def get_interest(self):
-        cursor = self.mongodb_community._db["chat_query"].find(
-            {
-                "_id": self.user_id
-            }
+    def get_user_preferences(self):
+        cursor = self.mongodb_community._db["user_preferences"].find(
+            {"userId": self.user_id}
         )
-        interest = cursor[0]["interest"]
-        interest = list(interest.values())
-        interest = [i.lower() for i in interest]
-        return interest
-    
-    def search_news_related(self, interest):
-        # search by keywords
-        timestamp = int(time.time()) - 86400 * 1
-        cursor = self.mongodb_community._db["news_articles"].find(
-            {
-                "keywords": {"$in": interest},
-                "publish_date_timestamp": {"$gte": timestamp}
-            }
+        cursor = list(cursor)
+        preferences = cursor[0]["preferences"]
+        embedding = cursor[0]["embedding"]
+
+        return preferences, embedding
+
+    def get_news_preferences(self):
+        preferences, embedding = self.get_user_preferences()
+
+        cursor = (
+            self.mongodb_community._db["news_articles"]
+            .find(
+                {
+                    "publish_date_timestamp": {"$gte": int(time.time()) - 86400 * 3},
+                    "embedding": {"$exists": True},
+                    "entities": {"$exists": True},
+                    "link_entities": {"$exists": True},
+                },
+                {
+                    "title": 1,
+                    "publish_date_timestamp": 1,
+                    "text": 1,
+                    "summary": 1,
+                    "img_url": 1,
+                    "url": 1,
+                    "type": 1,
+                    "entities": 1,
+                    "embedding": 1,
+                    "link_entities": 1
+                },
+            )
+            .sort("publish_date_timestamp", -1)
         )
+        
+        related_news = []
+        for news in cursor:
+            news_embedding = torch.tensor(news.get("embedding"))
+            user_embedding = torch.tensor(embedding)
 
-        news = [
-            {
-                "title": i["title"],
-                "summary": i["summary"],
-                "keywords": i["keywords"],
-                "publish_date": i["publish_date"],
-                "publish_date_timestamp": i["publish_date_timestamp"]
-            }
-            for i in cursor
-        ]
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            news_embedding = news_embedding.to(device)
+            user_embedding = user_embedding.to(device)
+            cosine_similarity = util.pytorch_cos_sim(user_embedding, news_embedding)
+            if cosine_similarity > 0:
+                related_news.append(
+                    {
+                        "keyWord": news.get("title", ""),
+                        "lastUpdated": news.get("publish_date_timestamp", ""),
+                        "content": news.get("summary", ""),
+                        "type": "news",
+                        "imgUrl": news.get("img_url", ""),
+                        "url": news.get("url", ""),
+                        "entities": news.get("entities", []),
+                        "link_entities": news.get("link_entities")
+                    }
+                )
+        return related_news
 
-        # keep news that its title contains at least 1 keyword
-        news = [
-            i for i in news if any(j in i["title"].lower() for j in interest)
-        ]
-
-        return news
-    
-    def search_news_related_in_twitter(self, interest):
-        # search by keywords
-        timestamp = int(time.time()) - 86400 * 1
-        list_news = []
-        token = interest[2]
-
-
-        cursor = self.mongodb_cdp._db["tweets"].find(
-            {
-                "text": {"$regex": f"${token}"},
-                "timestamp": {"$gte": timestamp}
-            }
-        )
-        list_news += list(cursor)
-
-        # keep news that have maximum views, likes
-        news = []
-        for i in list_news:
-            if i["views"] > 1000 or i["likes"] > 1000:
-                news.append(i)
-
-        # sort by views, likes; remove news that have same text
-        news = sorted(news, key=lambda x: x["views"] + x["likes"], reverse=True)
-        processed_news = []
-        for i in news:
-            if i["text"] not in [j["text"] for j in processed_news]:
-                processed_news.append(i)
-        news = processed_news[:5]
-
-        news = [
-            {
-                "title": "",
-                "summary": i["text"],
-                "keywords": "",
-                "publish_date": i["created"],
-                "publish_date_timestamp": i["timestamp"]
-            }
-            for i in news
-        ]
-
-        return news
-    
-    def post_news(self, info):
-        news_prompt_template = NewsPromptTemplate()
-        template = news_prompt_template.create_template()
-
-        prompt = template.format(
-            information_keyword=info.get("keywords"),
-            information_description=info.get("title"),
-            information_summary=info.get("summary")
-        )
-
-        response = self.llm.send_prompt(prompt)
-        return response
-    
-    def save_interest_feed(self):
-        interest = self.get_interest()
-        news = self.search_news_related(interest)
-        # news = news[:2]
-        # if len(news) < 3:
-        #     news += self.search_news_related_in_twitter(interest)
-
-        list_news = []
-        for i in news:
-            response = self.post_news(i)
-            list_news.append({
-                "_id": f"{self.user_id}_{i['publish_date_timestamp']}",
-                "userId": self.user_id,
-                "lastUpdated": i["publish_date_timestamp"],
-                "keyWord": i["title"],
-                "content": response,
-                "type": "news"
-            })
-
-        self.mongodb_community.update_docs(
-            collection_name="news_contents",
-            data=list_news
-        )
-        logger.info("Save interest feed successfully.")
-        return {"status": "success"}
-    
     def get_interest_feed(self):
         timestamp = int(time.time()) - 86400 * 3
-        feed = self.mongodb_community._db["news_articles"].find(
-            {
-                "publish_date_timestamp": {"$gte": timestamp},
-                "entities": {"$exists": True},
-            },
-            {
-                "title": 1,
-                "publish_date_timestamp": 1,
-                "text": 1,
-                "summary": 1,
-                "img_url": 1,
-                "url": 1,
-                "type": 1,
-                "entities": 1,
-            }
-        ).sort("publish_date_timestamp", -1)
+        feed = (
+            self.mongodb_community._db["news_articles"]
+            .find(
+                {
+                    "publish_date_timestamp": {"$gte": timestamp},
+                    "entities": {"$exists": True},
+                    "link_entities": {"$exists": True},
+                },
+                {
+                    "title": 1,
+                    "publish_date_timestamp": 1,
+                    "text": 1,
+                    "summary": 1,
+                    "img_url": 1,
+                    "url": 1,
+                    "type": 1,
+                    "entities": 1,
+                    "link_entities": 1
+                },
+            )
+            .sort("publish_date_timestamp", -1)
+        )
         result = [
             {
                 "keyWord": i["title"],
@@ -167,6 +117,7 @@ class GetInterestFeed:
                 "imgUrl": i["img_url"],
                 "url": i["url"],
                 "entities": i["entities"],
+                "link_entities": i["link_entities"]
             }
             for i in feed
         ]

@@ -13,8 +13,10 @@ SYSTEM_PROMPT = "You are ai influencer in Web3 Community"
 
 
 class LLMCommunication:
-    def __init__(self, gpt_model: str = os.getenv("LARGE_LANGUAGE_MODEL_OPENAI")):
-        self.gpt_model = gpt_model
+    def __init__(self, model_name: str = None):
+        self.gpt_model = (
+            model_name if model_name else os.getenv("LARGE_LANGUAGE_MODEL_OPENAI")
+        )
         config = AzureOpenAIModel()
         self.client = config.make_client()
 
