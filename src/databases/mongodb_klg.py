@@ -50,8 +50,8 @@ class MongoDBKLG:
 
         token_lst = []
         for tok in token_cursor:
-            if tok["symbol"].strip() not in token_lst:
-                token_lst.append(tok["symbol"].strip())
+            if tok["symbol"].strip().lower() not in token_lst:
+                token_lst.append(tok["symbol"].strip().lower())
 
         return token_lst
 

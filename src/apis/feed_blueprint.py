@@ -1,9 +1,12 @@
+import random
+
 from sanic import Blueprint, json
 from sanic_ext import openapi
 
 from src.services.feed.get_feed import GetFeed
 from src.services.feed.interest_feed import GetInterestFeed
 from src.services.feed.get_analytics import GetAnalytics
+from src.services.feed.user_preferences import UserPreferencesService
 from src.utils.logger import get_logger
 
 logger = get_logger("Feed Blueprint")
@@ -63,5 +66,50 @@ async def get_analytics_feed(request):
             "timeseries_data": doc["timeseries_data"].get("price", []) or doc["timeseries_data"].get("tvl", []),
             "website": doc["website"],
         })
+    random.shuffle(result)
 
     return json(result)
+
+
+@bp.get("/user-preferences")
+@openapi.tag("User Preferences")
+@openapi.summary("Get User Preferences")
+@openapi.parameter("userId", str, "query", required=True)
+@openapi.secured("Authorization")
+async def get_user_preferences(request):
+    try:
+        user_id = request.args.get("userId")
+        if not user_id:
+            return json({"error": "userId is required"}, status=400)
+
+        preferences = UserPreferencesService().get_preferences(user_id)
+        return json(preferences)
+    except Exception as e:
+        logger.error(f"Error getting user preferences: {str(e)}")
+        return json({"error": "Internal server error"}, status=500)
+
+
+@bp.post("/user-preferences")
+@openapi.tag("User Preferences")
+@openapi.summary("Save User Preferences")
+@openapi.secured("Authorization")
+async def save_user_preferences(request):
+    try:
+        data = request.json
+        if not data or "userId" not in data or "preferences" not in data:
+            return json({"error": "userId and preferences are required"}, status=400)
+
+        user_id = data["userId"]
+        preferences = data["preferences"]
+
+        # Validate required fields
+        required_fields = ["defiSector", "assetTypes", "experienceLevel", "completedOnboarding"]
+        for field in required_fields:
+            if field not in preferences:
+                return json({"error": f"Missing required field: {field}"}, status=400)
+
+        UserPreferencesService().save_preferences(user_id, preferences)
+        return json({"message": "Preferences saved successfully"})
+    except Exception as e:
+        logger.error(f"Error saving user preferences: {str(e)}")
+        return json({"error": "Internal server error"}, status=500) 

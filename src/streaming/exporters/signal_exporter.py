@@ -1,9 +1,10 @@
-import time
 import json
+import time
+
+from src.constants.time import TimeConstants
 from src.databases.blockchain_etl import BlockchainETL
 from src.models.loader import Loader
 from src.services.queue.events_stream import SignalsStream
-from src.constants.time import TimeConstants
 from src.utils.time import round_timestamp
 
 
@@ -30,7 +31,7 @@ class SignalExporter:
         redis_key = f"signal_count:{timestamp}"
         count = len(items)
 
-        self._signal_stream.incrby(redis_key, count, TimeConstants.A_DAY*2)
+        self._signal_stream.incrby(redis_key, count, TimeConstants.A_DAY * 2)
 
     def get_whales_wallet(self, chain_id):
         cache_key = f"whale_wallets_{chain_id}"
@@ -38,7 +39,7 @@ class SignalExporter:
         data = redis_client.get(cache_key)
         if data:
             return json.loads(data)
-        
+
         return None
 
     def cache_whales_wallet(self, items, chain_id):
@@ -46,13 +47,13 @@ class SignalExporter:
             return
 
         cache_key = f"whale_wallets_{chain_id}"
-        redis_client =self._signal_stream._redis
+        redis_client = self._signal_stream._redis
         redis_client.setex(cache_key, 86400, json.dumps(items))
 
     def get_loader(self, key: str) -> Loader:
         if not self._db:
             return Loader(_id=key)
-        
+
         data = self._db.get_config(key)
         if not data:
             return Loader(_id=key)
@@ -63,7 +64,7 @@ class SignalExporter:
 
     def update_loader(self, loader: Loader) -> None:
         data = loader.to_dict()
-        data['_id'] = loader.id
+        data["_id"] = loader.id
         if not self._db:
             return
         self._db.update_config(data)
