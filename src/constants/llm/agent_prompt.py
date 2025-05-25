@@ -123,21 +123,20 @@ class AnalysisPromptTemplate(BasePromptTemplate):
 
 class EntityExtractionPromptTemplate(BasePromptTemplate):
     prompt: str = """
-        You are an expert in Web3 Community and NLP. Your task is to extract entities from the given text.
+        Extract all entities that belong to the list below from the given text.
+        Your response must be in dictionary format with the key is the word and the value is the entity type. 
+        Do not miss any entity in the text, include abbreviation; and only include entities belong to the list below.
 
-        Entities to extract: ["TOKEN", "PROJECT", "WALLET", "EVENT", "TREND"]
+        *** List of entity types: [
+            "Token Cryptocurrency", "Lending", "RWA Lending", "NFT Lending", "Staking",
+            "Liquid Staking", "Restaking", "Yield", "Yield Aggregator", "Leveraged Farming",
+            "Indexes", "Synthetics", "Derivatives", "Prediction Market", "NFT Marketplace",
+            "Launchpad", "Chain", "Bridge", "Cross Chain", "DEX Aggregator",
+            "Wallet Address", "Telegram Bot", "Basis Trading", "Liquidations",
+            "DeFi Project", "RWA", "Concept", "Technology"
+        ]
 
-        Your response MUST be in dictionary format with the key is the entity and the value is a list of entities.
-        Do not include symbol, puctuation, ```, or any special characters in the extracted entities.
-
-        For example:
-            "TOKEN": ["$BTC", "$ETH"],
-            "PROJECT": ["Bitcoin", "Ethereum"],
-            "WALLET": ["MetaMask", "Trust Wallet"],
-            "EVENT": ["Hackathon", "Conference"],
-            "TREND": ["DeFi", "NFT"]
-
-        Text: {text}
+        *** Text: {text}
         """
     
     def create_template(self) -> PromptTemplate:

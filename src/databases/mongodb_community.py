@@ -240,3 +240,10 @@ class MongoDBCommunity:
             )
 
         return historical_token_price
+    
+    def get_all_chat_ids(self):
+        chat_ids = []
+        cursor = self._db["telegram_users"].find({})
+        for da in cursor:
+            chat_ids.append(da.get("chat_id"))
+        return chat_ids

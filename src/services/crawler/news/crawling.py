@@ -9,6 +9,7 @@ import xml.etree.ElementTree as ET
 from cli_scheduler.scheduler_job import SchedulerJob
 
 from src.databases.mongodb_community import MongoDBCommunity
+from src.databases.mongodb_klg import MongoDBKLG
 from src.services.crawler.news.config import BASE_URLS, BASE_URLS_V2
 from src.constants.time import TimeConstants
 from src.utils.logger import get_logger
@@ -23,9 +24,22 @@ class NewsCrawling(SchedulerJob):
         scheduler = f"^{run_now}@{interval}/{delay}#true"
         super().__init__(scheduler)
         self.mongodb = MongoDBCommunity()
+        self.mongodb_klg = MongoDBKLG()
         self.base_urls = BASE_URLS
         self.base_urls_v2 = BASE_URLS_V2
         self.time_interval = time_interval
+
+    def _start(self):
+        self.all_assets = self.mongodb_klg.get_tokens("smart_contracts")
+
+    def check_assets_from_news(self, text):
+        list_assets = []
+        list_words = text.lower().split(" ")
+        for word in list_words:
+            if word in self.all_assets:
+                list_assets.append(word.upper())
+
+        return list_assets
 
     def get_articles_from_feed(self, feed_url):
         feed = feedparser.parse(feed_url)
@@ -46,6 +60,7 @@ class NewsCrawling(SchedulerJob):
                 if publish_date_timestamp < start_time:
                     continue
 
+                list_assets = self.check_assets_from_news(article.text)
                 list_news.append({
                     "_id": article.url,
                     "title": article.title,
@@ -57,6 +72,7 @@ class NewsCrawling(SchedulerJob):
                     "keywords": article.keywords,
                     "img_url": article.top_image,
                     "type": "news",
+                    "assets": list_assets,
                 })
             except Exception as e:
                 logger.error(f"Error while parsing {url}: {str(e)}")

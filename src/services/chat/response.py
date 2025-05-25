@@ -1,12 +1,9 @@
 import json
 import os
 import re
-import sys
 import time
 
 import requests
-
-sys.path.append(os.getcwd())
 
 from dotenv import load_dotenv
 
@@ -21,9 +18,10 @@ logger = get_logger("Chat Response")
 
 class ChatResponse:
     def __init__(
-        self, user_id='16531087-1950-47d1-8f53-d44ec5dcd6b3', session_id="", from_platform='other', use_for_twitter=False
+        self, user_id='16531087-1950-47d1-8f53-d44ec5dcd6b3', session_id="", from_platform='other', use_for_twitter=False, user_address=""
     ):
         self.user_id = user_id
+        self.user_address = user_address
         self.session_id = session_id
         self.from_platform = from_platform
         self.use_for_twitter = use_for_twitter
@@ -107,7 +105,7 @@ class ChatResponse:
         #     return
 
         data = {
-            "_id": self.user_id,
+            "_id": self.user_address,
             "history": {
                 timestamp: {
                     "query": query,
@@ -124,10 +122,3 @@ class ChatResponse:
         logger.info("Query saved successfully")
         return data
 
-
-if __name__ == "__main__":
-    chat_response = ChatResponse()
-    response = chat_response.get_response(
-        text="What is DEX",
-    )
-    print(response)
