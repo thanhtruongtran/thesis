@@ -32,7 +32,7 @@ async def get_feed(request):
 @openapi.secured("Authorization")
 async def get_interest_feed(request):
     user_id = request.args.get("user_id")
-    feeds = GetInterestFeed(user_id).get_interest_feed()
+    feeds = GetInterestFeed(user_id).get_news_preferences()
 
     return json(feeds)
 
@@ -103,7 +103,7 @@ async def save_user_preferences(request):
         preferences = data["preferences"]
 
         # Validate required fields
-        required_fields = ["defiSector", "assetTypes", "experienceLevel", "completedOnboarding"]
+        required_fields = ["defiSector", "assetTypes", "topics", "completedOnboarding"]
         for field in required_fields:
             if field not in preferences:
                 return json({"error": f"Missing required field: {field}"}, status=400)

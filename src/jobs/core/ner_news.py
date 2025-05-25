@@ -1,4 +1,5 @@
 import time
+import json
 
 from cli_scheduler.scheduler_job import SchedulerJob
 
@@ -25,17 +26,19 @@ class NERNewsJob(SchedulerJob):
 
     def extract_entities(self):
         news_docs = self.mongodb_community.get_collection("news_articles").find(
-            {"entities": {"$exists": False}}
-        ).sort("publish_date_timestamp", -1).limit(10)
+            {"entities": {"$exists": False},
+             "publish_date_timestamp": {"$gte": int(time.time()) - 86400 * 3}}
+        ).sort("publish_date_timestamp", -1)
         news_docs = list(news_docs)
         logger.info(f"Extracting entities from {len(news_docs)} news articles")
         for doc in news_docs:
             try:
                 extracted_entities = self.ner_service.extract_entities(doc["summary"])
                 entities = self.ner_service.process_entities(extracted_entities)
+                link_entities = json.loads(self.ner_service.find_link_entity(entities))
                 self.mongodb_community.get_collection("news_articles").update_one(
                     {"_id": doc["_id"]},
-                    {"$set": {"entities": entities}},
+                    {"$set": {"entities": entities, "link_entities": link_entities}},
                 )
             except Exception as e:
                 logger.error(f"Error extracting entities from news article {doc['_id']}: {e}")

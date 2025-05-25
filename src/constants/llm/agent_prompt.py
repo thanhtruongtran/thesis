@@ -146,6 +146,29 @@ class EntityExtractionPromptTemplate(BasePromptTemplate):
         )
     
 
+class FindLinkOfEntity(BasePromptTemplate):
+    prompt: str = """
+        You are a blockchain knowledge assistant.
+
+        Given a list of entities, return a dictionary where:
+        - the key is the entity name
+        - the value is a relevant knowledge link that helps users learn more about that entity.
+
+        Return only one best link per entity and that link must be available now.
+
+        Format: JSON dictionary.
+
+        Entities:
+        {entities}
+    """
+
+    def create_template(self) -> PromptTemplate:
+        return PromptTemplate(
+            template=self.prompt,
+            input_variables=["entities"]
+        )
+    
+
 class SignalExplanationPromptTemplate(BasePromptTemplate):
     prompt: str = """
         <s>[INST] As a DeFi analytics expert explaining blockchain signals, your task is to explain the given DeFi signal in detail.

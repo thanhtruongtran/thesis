@@ -1,20 +1,22 @@
 import os
 import sys
 import time
-sys.path.append(os.getcwd())
-import feedparser
-from newspaper import Article
-import requests
-import xml.etree.ElementTree as ET
-from cli_scheduler.scheduler_job import SchedulerJob
 
+sys.path.append(os.getcwd())
+import xml.etree.ElementTree as ET
+
+import feedparser
+import requests
+from cli_scheduler.scheduler_job import SchedulerJob
+from newspaper import Article
+from sentence_transformers import SentenceTransformer
+
+from src.constants.time import TimeConstants
 from src.databases.mongodb_community import MongoDBCommunity
 from src.databases.mongodb_klg import MongoDBKLG
 from src.services.crawler.news.config import BASE_URLS, BASE_URLS_V2
-from src.constants.time import TimeConstants
 from src.utils.logger import get_logger
 from src.utils.time import round_timestamp
-
 
 logger = get_logger("News Crawling")
 
@@ -28,6 +30,7 @@ class NewsCrawling(SchedulerJob):
         self.base_urls = BASE_URLS
         self.base_urls_v2 = BASE_URLS_V2
         self.time_interval = time_interval
+        self.model = SentenceTransformer("all-MiniLM-L6-v2")
 
     def _start(self):
         self.all_assets = self.mongodb_klg.get_tokens("smart_contracts")
@@ -44,9 +47,9 @@ class NewsCrawling(SchedulerJob):
     def get_articles_from_feed(self, feed_url):
         feed = feedparser.parse(feed_url)
         list_news = []
-        start_time = int(time.time()) - TimeConstants.A_DAY*self.time_interval
+        start_time = int(time.time()) - TimeConstants.A_DAY * self.time_interval
         start_time = round_timestamp(start_time)
-        
+
         for entry in feed.entries:
             url = entry.link
             try:
@@ -61,19 +64,30 @@ class NewsCrawling(SchedulerJob):
                     continue
 
                 list_assets = self.check_assets_from_news(article.text)
-                list_news.append({
-                    "_id": article.url,
-                    "title": article.title,
-                    "url": article.url,
-                    "text": article.text,
-                    "publish_date_timestamp": publish_date_timestamp,
-                    "publish_date": str(article.publish_date),
-                    "summary": article.summary,
-                    "keywords": article.keywords,
-                    "img_url": article.top_image,
-                    "type": "news",
-                    "assets": list_assets,
-                })
+
+                # Generate embedding and convert to list
+                text_for_embedding = article.title + " " + article.summary
+                embedding = self.model.encode(
+                    text_for_embedding, convert_to_tensor=True
+                )
+                embedding_list = embedding.cpu().numpy().tolist()
+
+                list_news.append(
+                    {
+                        "_id": article.url,
+                        "title": article.title,
+                        "url": article.url,
+                        "text": article.text,
+                        "publish_date_timestamp": publish_date_timestamp,
+                        "publish_date": str(article.publish_date),
+                        "summary": article.summary,
+                        "keywords": article.keywords,
+                        "img_url": article.top_image,
+                        "type": "news",
+                        "assets": list_assets,
+                        "embedding": embedding_list,
+                    }
+                )
             except Exception as e:
                 logger.error(f"Error while parsing {url}: {str(e)}")
 
@@ -108,7 +122,9 @@ class NewsCrawling(SchedulerJob):
                 url = item.findtext("link")
                 if url is None:
                     link_elem = item.find("atom:link", ns)
-                    url = link_elem.attrib.get("href") if link_elem is not None else None
+                    url = (
+                        link_elem.attrib.get("href") if link_elem is not None else None
+                    )
 
                 publish_date = item.findtext("pubDate")
                 if publish_date is None:
@@ -118,14 +134,18 @@ class NewsCrawling(SchedulerJob):
                     continue
 
                 try:
-                    publish_date_timestamp = int(time.mktime(
-                        time.strptime(publish_date, "%a, %d %b %Y %H:%M:%S %z")
-                    ))
+                    publish_date_timestamp = int(
+                        time.mktime(
+                            time.strptime(publish_date, "%a, %d %b %Y %H:%M:%S %z")
+                        )
+                    )
                 except ValueError:
                     try:
-                        publish_date_timestamp = int(time.mktime(
-                            time.strptime(publish_date, "%Y-%m-%dT%H:%M:%S.%fZ")
-                        ))
+                        publish_date_timestamp = int(
+                            time.mktime(
+                                time.strptime(publish_date, "%Y-%m-%dT%H:%M:%S.%fZ")
+                            )
+                        )
                     except ValueError:
                         logger.warning(f"Unrecognized date format: {publish_date}")
                         continue
@@ -139,18 +159,31 @@ class NewsCrawling(SchedulerJob):
                     article.parse()
                     article.nlp()
 
-                    list_news.append({
-                        "_id": article.url,
-                        "title": article.title,
-                        "url": article.url,
-                        "text": article.text,
-                        "publish_date_timestamp": publish_date_timestamp,
-                        "publish_date": publish_date,
-                        "summary": article.summary,
-                        "keywords": article.keywords,
-                        "img_url": article.top_image,
-                        "type": "news",
-                    })
+                    list_assets = self.check_assets_from_news(article.text)
+
+                    # Generate embedding and convert to list
+                    text_for_embedding = article.title + " " + article.summary
+                    embedding = self.model.encode(
+                        text_for_embedding, convert_to_tensor=True
+                    )
+                    embedding_list = embedding.cpu().numpy().tolist()
+
+                    list_news.append(
+                        {
+                            "_id": article.url,
+                            "title": article.title,
+                            "url": article.url,
+                            "text": article.text,
+                            "publish_date_timestamp": publish_date_timestamp,
+                            "publish_date": publish_date,
+                            "summary": article.summary,
+                            "keywords": article.keywords,
+                            "img_url": article.top_image,
+                            "type": "news",
+                            "assets": list_assets,
+                            "embedding": embedding_list,
+                        }
+                    )
 
                 except Exception as e:
                     logger.error(f"Error while parsing article at {url}: {str(e)}")
@@ -168,7 +201,7 @@ class NewsCrawling(SchedulerJob):
                 data=articles,
             )
             logger.info(f"Inserted {len(articles)} articles from {feed_url}")
-        
+
         for feed_url in self.base_urls_v2:
             articles = self.get_articles_from_feed_v2(feed_url)
             self.mongodb.update_docs(
@@ -178,4 +211,3 @@ class NewsCrawling(SchedulerJob):
             logger.info(f"Inserted {len(articles)} articles from {feed_url}")
 
         logger.info("News crawling completed.")
-    
