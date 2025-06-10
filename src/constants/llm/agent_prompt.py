@@ -208,3 +208,49 @@ class SignalExplanationPromptTemplate(BasePromptTemplate):
             template=self.prompt,
             input_variables=["signal_type", "chain_id", "block_number", "signal_data"],
         )
+    
+
+class LLMAsAJudge(BasePromptTemplate):
+    prompt: str = """You are a neutral evaluator comparing two AI-generated explanations for a DeFi signal.
+
+        You will receive:
+        - Signal Type
+        - Signal Value
+        - Chain Name
+        - Related Tokens
+        - Project Name
+        - Two different explanations for the same signal
+
+        Your task is to decide which explanation is better based on the following criteria:
+
+        1. **Relevance**: Does the explanation correctly reflect the signal type, tokens, and project context?
+        2. **Clarity**: Is the explanation easy to understand, well-structured, and grammatically sound?
+        3. **Conciseness**: Does the explanation avoid unnecessary details while still being informative?
+        4. **Style**: Is the explanation naturally phrased (not robotic), and different in tone from standard templates?
+        5. **Compliance**: Does the explanation avoid defining terms or predicting impact, as per the instructions?
+
+        Respond with:
+        - `"winner": "A"` if Explanation A is clearly better
+        - `"winner": "B"` if Explanation B is clearly better
+        - `"winner": "Tie"` if both are equally good
+        - `"justification"`: Brief reason for your decision
+
+        ### Input:
+        Signal Type: {signal_type}  
+        Value: {value}  
+        Chain: {chain_name}  
+        Tokens: {tokens}  
+        Project: {project}
+
+        ### Explanation A:
+        {output_model_A}
+
+        ### Explanation B:
+        {output_model_B}
+    """
+
+    def create_template(self) -> PromptTemplate:
+        return PromptTemplate(
+            template=self.prompt,
+            input_variables=["signal_type", "value", "chain_name", "tokens", "project", "output_model_A", "output_model_B"]
+        )

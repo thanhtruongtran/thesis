@@ -13,7 +13,6 @@ from transformers import AutoModelForTokenClassification, AutoTokenizer
 from src.constants.llm.agent_prompt import EntityExtractionPromptTemplate
 from src.databases.mongodb_community import MongoDBCommunity
 from src.services.llm.communication import LLMCommunication
-from src.services.chat.response import ChatResponse
 from src.utils.logger import get_logger
 
 logger = get_logger("NER Service")
@@ -23,7 +22,6 @@ class NERService:
     def __init__(self):
         self.db = MongoDBCommunity()
         self.llm = LLMCommunication(model_name="gpt-4o-mini-search-preview")
-        self.chat = ChatResponse()
         self.model_name = "truongtt/blockchain-ner"
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
         self.model = AutoModelForTokenClassification.from_pretrained(self.model_name)
@@ -41,63 +39,30 @@ class NERService:
         if not entities:
             return []
 
-        cleaned_entities = []
-        seen_tokens = set()
-
-        for token, tag in entities:
-            clean_token = token.rstrip(".,!?:;")
-
-            dedup_key = (clean_token, tag)
-
-            if dedup_key not in seen_tokens:
-                seen_tokens.add(dedup_key)
-                cleaned_entities.append((clean_token, tag))
-
         merged = []
         current_tokens = []
         current_tag = None
 
-        for token, tag in cleaned_entities:
-            entity_type = tag[2:] if tag.startswith(("B-", "I-")) else tag
+        for token, tag in entities:
+            prefix, tag_type = tag.split("-", 1) if "-" in tag else ("O", tag)
 
-            if tag.startswith("B-") or (
-                current_tag
-                and entity_type
-                != (
-                    current_tag[2:]
-                    if current_tag.startswith(("B-", "I-"))
-                    else current_tag
-                )
-            ):
+            if prefix == "B":
                 if current_tokens:
-                    final_tag = (
-                        current_tag[2:]
-                        if current_tag.startswith(("B-", "I-"))
-                        else current_tag
-                    )
-                    merged.append((" ".join(current_tokens), final_tag))
-
+                    merged.append((" ".join(current_tokens), current_tag))
                 current_tokens = [token]
-                current_tag = tag
+                current_tag = tag_type
 
-            elif tag.startswith("I-"):
+            elif prefix == "I" and current_tag == tag_type:
                 current_tokens.append(token)
+
             else:
                 if current_tokens:
-                    final_tag = (
-                        current_tag[2:]
-                        if current_tag.startswith(("B-", "I-"))
-                        else current_tag
-                    )
-                    merged.append((" ".join(current_tokens), final_tag))
-                current_tokens = [token]
-                current_tag = tag
+                    merged.append((" ".join(current_tokens), current_tag))
+                current_tokens = [token] if tag != "O" else []
+                current_tag = tag_type if tag != "O" else None
 
         if current_tokens:
-            final_tag = (
-                current_tag[2:] if current_tag.startswith(("B-", "I-")) else current_tag
-            )
-            merged.append((" ".join(current_tokens), final_tag))
+            merged.append((" ".join(current_tokens), current_tag))
 
         return merged
 
@@ -107,16 +72,6 @@ class NERService:
         prompt = template.format(text=query)
 
         response = self.llm.send_prompt(prompt)
-        return response
-    
-    def find_link_entity(self, entities):
-        prompt = f"""With each entity in this list, give me only a relevant knowledge link that helps users learn more about that entity. 
-                    Your response is a dictionary, with key is entity and value is link of that entity.
-                    Here is the list of entities: {entities}.
-                    DO NOT add any information, sentence into your response, only just a dictionary
-                    """
-        
-        response = self.chat.get_response_no_save(text=prompt)
         return response
 
     def process_entities(self, response):
@@ -222,6 +177,7 @@ class NERService:
                     result.append((token, pred_tag))
 
         return self.merge_entities(result)
+        # return result
 
     def predict_entities_from_db(self):
         news_docs = self.db.get_collection("news_articles").find(
@@ -277,14 +233,3 @@ class NERService:
                 logger.error(
                     f"Error predicting entities from analytics {doc['_id']}: {e}"
                 )
-
-
-if __name__ == "__main__":
-    ner_service = NERService()
-    response = ner_service.extract_entities(
-        """Discover Ruvi AI’s Innovative EcosystemRuvi AI is changing the game with its decentralized AI superapp, striving to combine cutting-edge artificial intelligence with blockchain transparency. Built on strong community-driven fundamentals, Ruvi AI is designed to empower users with advanced AI capabilities while creating a secure and scalable ecosystem. A strategic alliance with WEEX Exchange adds depth to Ruvi AI’s trading ecosystem. With its presale momentum, robust fundamentals, and visionary partnerships, Ruvi AI stands out as a promising asset for tech-savvy enthusiasts. Learn MoreGet RUVI: https://presale.ruvi.ioWebsite: https://ruvi.ioWhitepaper: https://docs.ruvi.ioTelegram: https://t.me/ruviofficialTwitter/X: https://x.com/RuviAITry RUVI AI: https://web.ruvi.io/register""")
-    # print(response)
-    entities = ner_service.process_entities(response)
-    link_entities = ner_service.find_link_entity(list(entities.keys()))
-    # link_entities = ner_service.process_entities(link_entities)
-    print(link_entities)

@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 from src.constants.llm.agent_prompt import EntityExtractionPromptTemplate
 from src.databases.mongodb_community import MongoDBCommunity
 from src.services.llm.communication import LLMCommunication
+from src.services.core.ner import NERService
 from src.utils.logger import get_logger
 
 load_dotenv()
@@ -31,6 +32,7 @@ class ChatResponse:
         self.CLIENT_ID = os.getenv("CLIENT_ID")
         self.mongodb = MongoDBCommunity()
         self.llm = LLMCommunication()
+        self.ner = NERService()
 
     def get_response_no_save(
         self, text, num_keywords=10, num_context=0, context=""
@@ -114,21 +116,30 @@ class ChatResponse:
             result_dict = {}
 
         return result_dict
+    
+    def find_link_entity(self, entities):
+        prompt = f"""With each entity in this list, give me only a relevant knowledge link that helps users learn more about that entity. 
+                    Your response is a dictionary, with key is entity and value is link of that entity.
+                    Here is the list of entities: {entities}.
+                    DO NOT add any information, sentence into your response, only just a dictionary
+                    """
+        
+        response = self.get_response_no_save(text=prompt)
+        return response
 
     # function to save query of user, extract keywords and entities, and save in database
     def save_query(self, query, response):
         timestamp = int(time.time())
-        # entities = self.extract_entities(query)
-        # entities = self.format_entities(entities)
-        entities = {}
+        extracted_entities = self.ner.extract_entities(query)
+        entities = self.ner.process_entities(extracted_entities)
 
-        # # if all values are empty, then return
-        # for key, value in entities.items():
-        #     if value:
-        #         break
-        # else:
-        #     logger.info("No entities found")
-        #     return
+        # if all values are empty, then return
+        for key, value in entities.items():
+            if value:
+                break
+        else:
+            logger.info("No entities found")
+            return
 
         data = {
             "_id": self.user_address,

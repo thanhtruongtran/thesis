@@ -5,6 +5,7 @@ from cli_scheduler.scheduler_job import SchedulerJob
 
 from src.databases.mongodb_community import MongoDBCommunity
 from src.services.core.ner import NERService
+from src.services.chat.response import ChatResponse
 from src.utils.logger import get_logger
 
 logger = get_logger("NER News Job")
@@ -16,6 +17,7 @@ class NERNewsJob(SchedulerJob):
         super().__init__(scheduler)
         self.ner_service = NERService()
         self.mongodb_community = MongoDBCommunity()
+        self.chat = ChatResponse()
 
     def _execute(self, *args, **kwargs):
         logger.info("NER News Job started")
@@ -35,7 +37,7 @@ class NERNewsJob(SchedulerJob):
             try:
                 extracted_entities = self.ner_service.extract_entities(doc["summary"])
                 entities = self.ner_service.process_entities(extracted_entities)
-                link_entities = json.loads(self.ner_service.find_link_entity(entities))
+                link_entities = json.loads(self.chat.find_link_entity(entities))
                 self.mongodb_community.get_collection("news_articles").update_one(
                     {"_id": doc["_id"]},
                     {"$set": {"entities": entities, "link_entities": link_entities}},

@@ -240,10 +240,21 @@ class MongoDBCommunity:
             )
 
         return historical_token_price
-    
+
     def get_all_chat_ids(self):
         chat_ids = []
         cursor = self._db["telegram_users"].find({})
         for da in cursor:
             chat_ids.append(da.get("chat_id"))
         return chat_ids
+
+    def save_news_view_history(self, user_id: str, news_id: str, timestamp: int, entities):
+        try:
+            collection = self._db["news_view_history"]
+            doc = {"userId": user_id, "newsId": news_id, "timestamp": timestamp, "entities": entities}
+            collection.insert_one(doc)
+            logger.info(f"Saved news view history: {doc}")
+            return True
+        except Exception as e:
+            logger.error(f"Error saving news view history: {e}")
+            return False
